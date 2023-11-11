@@ -1,0 +1,221 @@
+package server
+
+import (
+	"context"
+	"errors"
+	"net/http"
+	"strings"
+
+	"github.com/choral-io/gommerce-server-core/config"
+	"github.com/choral-io/gommerce-server-core/logging"
+	"github.com/choral-io/gommerce-server-core/secure"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/selector"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/rs/cors"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/trace"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	health "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/reflection"
+)
+
+// ServerServiceRegister is implemented by servers that register grpc services.
+type ServerServiceRegister interface {
+	RegisterServerService(grpc.ServiceRegistrar)
+}
+
+// ServerServiceRegisterFunc is a function that registers grpc services.
+type ServerServiceRegisterFunc func(grpc.ServiceRegistrar)
+
+// GatewayClientRegister is implemented by servers that register grpc gateway clients.
+type GatewayClientRegister interface {
+	RegisterGatewayClient(context.Context, *runtime.ServeMux, *grpc.ClientConn) error
+}
+
+// GatewayClientRegisterFunc is a function that registers grpc gateway clients.
+type GatewayClientRegisterFunc func(context.Context, *runtime.ServeMux, *grpc.ClientConn) error
+
+// GRPCHandler is an implementation of http.Handler for gRPC.
+type GRPCHandler struct {
+	h2cHandler http.Handler
+
+	srvOptions []grpc.ServerOption
+	gtwOptions []runtime.ServeMuxOption
+
+	unaryInts  []grpc.UnaryServerInterceptor
+	StreamInts []grpc.StreamServerInterceptor
+
+	srvServers []ServerServiceRegisterFunc
+	gtwClients []GatewayClientRegisterFunc
+
+	useHealthz bool
+}
+
+// GRPCHandlerOption is an option for GRPCHandler, used to configure it.
+type GRPCHandlerOption func(*GRPCHandler) error
+
+// NewGRPCHandler returns a new GRPCHandler with the given config and options.
+func NewGRPCHandler(cfg config.ServerHTTPConfig, opts ...GRPCHandlerOption) (*GRPCHandler, error) {
+	ctx := context.Background()
+
+	conn, err := grpc.Dial(cfg.GetAddr(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, err
+	}
+
+	h := &GRPCHandler{
+		srvOptions: []grpc.ServerOption{},
+		gtwOptions: []runtime.ServeMuxOption{},
+		unaryInts:  []grpc.UnaryServerInterceptor{},
+		StreamInts: []grpc.StreamServerInterceptor{},
+	}
+
+	for _, opt := range opts {
+		if err := opt(h); err != nil {
+			return nil, err
+		}
+	}
+
+	h.srvOptions = append(h.srvOptions, grpc.ChainUnaryInterceptor(h.unaryInts...))
+	h.srvOptions = append(h.srvOptions, grpc.ChainStreamInterceptor(h.StreamInts...))
+
+	if h.useHealthz {
+		h.gtwOptions = append(h.gtwOptions, runtime.WithHealthzEndpoint(health.NewHealthClient(conn)))
+	}
+
+	grpcServer := grpc.NewServer(h.srvOptions...)
+	gatewayMux := runtime.NewServeMux(h.gtwOptions...)
+
+	for _, srv := range h.srvServers {
+		srv(grpcServer)
+	}
+
+	for _, cli := range h.gtwClients {
+		if err := cli(ctx, gatewayMux, conn); err != nil {
+			return nil, err
+		}
+	}
+
+	reflection.Register(grpcServer)
+	gtwHandler := cors.Default().Handler(gatewayMux)
+
+	h.h2cHandler = h2c.NewHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.ProtoMajor == 2 && strings.HasPrefix(r.Header.Get("Content-Type"), "application/grpc") {
+			grpcServer.ServeHTTP(w, r)
+		} else {
+			gtwHandler.ServeHTTP(w, r)
+		}
+	}), &http2.Server{})
+
+	return h, nil
+}
+
+// ServeHTTP implements http.Handler.
+func (h *GRPCHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	h.h2cHandler.ServeHTTP(w, r)
+}
+
+// WithOTELStatsHandler returns a GRPCHandlerOption that use an opentelemetry stats handler for grpc server.
+func WithOTELStatsHandler(tp trace.TracerProvider, mp metric.MeterProvider) GRPCHandlerOption {
+	return func(h *GRPCHandler) error {
+		// otelgrpc.UnaryServerInterceptor and otelgrpc.StreamServerInterceptor are deprecated,
+		// Use otelgrpc.NewServerHandler instead
+		h.srvOptions = append(h.srvOptions, grpc.StatsHandler(otelgrpc.NewServerHandler()))
+
+		return nil
+	}
+}
+
+// WithUnaryInterceptors returns a GRPCHandlerOption that adds the given unary interceptors to grpc handler.
+func WithUnaryInterceptors(ints ...grpc.UnaryServerInterceptor) GRPCHandlerOption {
+	return func(h *GRPCHandler) error {
+		h.unaryInts = append(h.unaryInts, ints...)
+
+		return nil
+	}
+}
+
+// WithStreamInterceptors returns a GRPCHandlerOption that adds the given stream interceptors to grpc handler.
+func WithStreamInterceptors(ints ...grpc.StreamServerInterceptor) GRPCHandlerOption {
+	return func(h *GRPCHandler) error {
+		h.StreamInts = append(h.StreamInts, ints...)
+
+		return nil
+	}
+}
+
+// WithLoggingInterceptor returns a GRPCHandlerOption that adds a logging interceptor to grpc handler.
+func WithLoggingInterceptor(logger logging.Logger) GRPCHandlerOption {
+	grpclog := logging.NewGRPCLogger(logger)
+	return func(h *GRPCHandler) error {
+		h.unaryInts = append(h.unaryInts, grpclog.UnaryServerInterceptor())
+		h.StreamInts = append(h.StreamInts, grpclog.StreamServerInterceptor())
+
+		return nil
+	}
+}
+
+// WithRecoveryInterceptor returns a GRPCHandlerOption that adds a recovery interceptor to grpc handler.
+// The given recovery handler will be called when a panic occurs.
+func WithRecoveryInterceptor(f recovery.RecoveryHandlerFuncContext) GRPCHandlerOption {
+	return func(h *GRPCHandler) error {
+		h.unaryInts = append(h.unaryInts, recovery.UnaryServerInterceptor(recovery.WithRecoveryHandlerContext(f)))
+		h.StreamInts = append(h.StreamInts, recovery.StreamServerInterceptor(recovery.WithRecoveryHandlerContext(f)))
+
+		return nil
+	}
+}
+
+// WithSecureInterceptor returns a GRPCHandlerOption that adds a secure interceptor to grpc handler.
+// The given matcher will be used to determine which methods should be secured.
+func WithSecureInterceptor(auth *secure.ServerAuthorizer, matcher selector.Matcher) GRPCHandlerOption {
+	return func(h *GRPCHandler) error {
+		if matcher == nil {
+			h.unaryInts = append(h.unaryInts, auth.UnaryServerInterceptor())
+			h.StreamInts = append(h.StreamInts, auth.StreamServerInterceptor())
+		} else {
+			h.unaryInts = append(h.unaryInts, selector.UnaryServerInterceptor(auth.UnaryServerInterceptor(), matcher))
+			h.StreamInts = append(h.StreamInts, selector.StreamServerInterceptor(auth.StreamServerInterceptor(), matcher))
+		}
+
+		return nil
+	}
+}
+
+// WithRegistrations returns a GRPCHandlerOption that registers grpc servers and gateway clients.
+// The given registrations must implement ServerServiceRegister or GatewayClientRegister.
+func WithRegistrations(regs ...any) GRPCHandlerOption {
+	return func(h *GRPCHandler) error {
+		for _, reg := range regs {
+			if _, ok := reg.(health.HealthServer); ok {
+				h.useHealthz = true
+			}
+			registered := false
+			if r, ok := reg.(ServerServiceRegister); ok {
+				registered = true
+				h.srvServers = append(h.srvServers, r.RegisterServerService)
+			}
+			if r, ok := reg.(ServerServiceRegisterFunc); ok {
+				registered = true
+				h.srvServers = append(h.srvServers, r)
+			}
+			if r, ok := reg.(GatewayClientRegister); ok {
+				registered = true
+				h.gtwClients = append(h.gtwClients, r.RegisterGatewayClient)
+			}
+			if r, ok := reg.(GatewayClientRegisterFunc); ok {
+				registered = true
+				h.gtwClients = append(h.gtwClients, r)
+			}
+			if !registered {
+				return errors.New("registration must implement ServerServiceRegister or GatewayClientRegister")
+			}
+		}
+		return nil
+	}
+}
