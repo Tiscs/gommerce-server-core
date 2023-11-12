@@ -11,6 +11,7 @@ import (
 	"github.com/choral-io/gommerce-server-core/secure"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/selector"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/cors"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -48,7 +49,7 @@ type GRPCHandler struct {
 	gtwOptions []runtime.ServeMuxOption
 
 	unaryInts  []grpc.UnaryServerInterceptor
-	StreamInts []grpc.StreamServerInterceptor
+	streamInts []grpc.StreamServerInterceptor
 
 	srvServers []ServerServiceRegisterFunc
 	gtwClients []GatewayClientRegisterFunc
@@ -72,7 +73,7 @@ func NewGRPCHandler(cfg config.ServerHTTPConfig, opts ...GRPCHandlerOption) (*GR
 		srvOptions: []grpc.ServerOption{},
 		gtwOptions: []runtime.ServeMuxOption{},
 		unaryInts:  []grpc.UnaryServerInterceptor{},
-		StreamInts: []grpc.StreamServerInterceptor{},
+		streamInts: []grpc.StreamServerInterceptor{},
 	}
 
 	for _, opt := range opts {
@@ -82,7 +83,7 @@ func NewGRPCHandler(cfg config.ServerHTTPConfig, opts ...GRPCHandlerOption) (*GR
 	}
 
 	h.srvOptions = append(h.srvOptions, grpc.ChainUnaryInterceptor(h.unaryInts...))
-	h.srvOptions = append(h.srvOptions, grpc.ChainStreamInterceptor(h.StreamInts...))
+	h.srvOptions = append(h.srvOptions, grpc.ChainStreamInterceptor(h.streamInts...))
 
 	if h.useHealthz {
 		h.gtwOptions = append(h.gtwOptions, runtime.WithHealthzEndpoint(health.NewHealthClient(conn)))
@@ -135,7 +136,6 @@ func WithOTELStatsHandler(tp trace.TracerProvider, mp metric.MeterProvider) GRPC
 func WithUnaryInterceptors(ints ...grpc.UnaryServerInterceptor) GRPCHandlerOption {
 	return func(h *GRPCHandler) error {
 		h.unaryInts = append(h.unaryInts, ints...)
-
 		return nil
 	}
 }
@@ -143,7 +143,7 @@ func WithUnaryInterceptors(ints ...grpc.UnaryServerInterceptor) GRPCHandlerOptio
 // WithStreamInterceptors returns a GRPCHandlerOption that adds the given stream interceptors to grpc handler.
 func WithStreamInterceptors(ints ...grpc.StreamServerInterceptor) GRPCHandlerOption {
 	return func(h *GRPCHandler) error {
-		h.StreamInts = append(h.StreamInts, ints...)
+		h.streamInts = append(h.streamInts, ints...)
 
 		return nil
 	}
@@ -154,7 +154,7 @@ func WithLoggingInterceptor(logger logging.Logger) GRPCHandlerOption {
 	grpclog := logging.NewGRPCLogger(logger)
 	return func(h *GRPCHandler) error {
 		h.unaryInts = append(h.unaryInts, grpclog.UnaryServerInterceptor())
-		h.StreamInts = append(h.StreamInts, grpclog.StreamServerInterceptor())
+		h.streamInts = append(h.streamInts, grpclog.StreamServerInterceptor())
 
 		return nil
 	}
@@ -165,7 +165,17 @@ func WithLoggingInterceptor(logger logging.Logger) GRPCHandlerOption {
 func WithRecoveryInterceptor(f recovery.RecoveryHandlerFuncContext) GRPCHandlerOption {
 	return func(h *GRPCHandler) error {
 		h.unaryInts = append(h.unaryInts, recovery.UnaryServerInterceptor(recovery.WithRecoveryHandlerContext(f)))
-		h.StreamInts = append(h.StreamInts, recovery.StreamServerInterceptor(recovery.WithRecoveryHandlerContext(f)))
+		h.streamInts = append(h.streamInts, recovery.StreamServerInterceptor(recovery.WithRecoveryHandlerContext(f)))
+
+		return nil
+	}
+}
+
+// WithValidatorInterceptor returns a GRPCHandlerOption that adds a validator interceptor to grpc handler.
+func WithValidatorInterceptor() GRPCHandlerOption {
+	return func(h *GRPCHandler) error {
+		h.unaryInts = append(h.unaryInts, validator.UnaryServerInterceptor())
+		h.streamInts = append(h.streamInts, validator.StreamServerInterceptor())
 
 		return nil
 	}
@@ -177,10 +187,10 @@ func WithSecureInterceptor(auth *secure.ServerAuthorizer, matcher selector.Match
 	return func(h *GRPCHandler) error {
 		if matcher == nil {
 			h.unaryInts = append(h.unaryInts, auth.UnaryServerInterceptor())
-			h.StreamInts = append(h.StreamInts, auth.StreamServerInterceptor())
+			h.streamInts = append(h.streamInts, auth.StreamServerInterceptor())
 		} else {
 			h.unaryInts = append(h.unaryInts, selector.UnaryServerInterceptor(auth.UnaryServerInterceptor(), matcher))
-			h.StreamInts = append(h.StreamInts, selector.StreamServerInterceptor(auth.StreamServerInterceptor(), matcher))
+			h.streamInts = append(h.streamInts, selector.StreamServerInterceptor(auth.StreamServerInterceptor(), matcher))
 		}
 
 		return nil
