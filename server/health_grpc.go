@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/redis/rueidis"
+	"github.com/uptrace/bun"
 	"google.golang.org/grpc"
 	health "google.golang.org/grpc/health/grpc_health_v1"
 )
@@ -19,7 +20,9 @@ type healthServiceServer struct {
 }
 
 // NewHealthServiceServer returns a new health service server.
-func NewHealthServiceServer(sdb *sql.DB, rdb rueidis.Client) health.HealthServer {
+func NewHealthServiceServer(bdb bun.IDB, rdb rueidis.Client) health.HealthServer {
+	// this is a hack to get the underlying sql.DB from bun.IDB
+	sdb := bdb.NewSelect().DB().DB
 	return &healthServiceServer{
 		sdb: sdb,
 		rdb: rdb,

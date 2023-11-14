@@ -25,7 +25,7 @@ func NewGRPCLogger(logger Logger) *GRPCLogger {
 }
 
 // Log implements logging.Logger.
-func (l *GRPCLogger) Log(ctx context.Context, level logging.Level, msg string, fields ...interface{}) {
+func (l *GRPCLogger) Log(ctx context.Context, level logging.Level, msg string, fields ...any) {
 	l.logger.Log(ctx, Level(level), msg, fields...)
 }
 

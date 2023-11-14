@@ -57,8 +57,8 @@ func (h globalQueryHook) AfterQuery(ctx context.Context, event *bun.QueryEvent) 
 	}
 }
 
-// NewBunDB creates a new bun.DB instance with metrics, tracing and logging.
-func NewBunDB(cfg config.ServerDBConfig, logger logging.Logger, idw IdWorker, tp trace.TracerProvider, mp metric.MeterProvider) (*bun.DB, error) {
+// NewBunDB creates a new bun.IDB instance with metrics, tracing and logging.
+func NewBunDB(cfg config.ServerDBConfig, logger logging.Logger, idw IdWorker, tp trace.TracerProvider, mp metric.MeterProvider) (bun.IDB, error) {
 	var dialect schema.Dialect
 	switch cfg.GetDriver() {
 	case "pg", "pgsql":
