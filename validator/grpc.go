@@ -2,6 +2,7 @@ package validator
 
 import (
 	"context"
+	"log/slog"
 
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
@@ -9,7 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func grpcValidationStatus(err error) error {
+func grpcStatusErr(ctx context.Context, err error) error {
 	var errs []error
 	switch err := err.(type) {
 	case validationError:
@@ -40,6 +41,7 @@ func grpcValidationStatus(err error) error {
 	}
 	st, err = st.WithDetails(br)
 	if err != nil {
+		slog.ErrorContext(ctx, "failed to attach validation errors", "err", err)
 		return status.Error(codes.Unknown, err.Error())
 	}
 	return st.Err()
@@ -47,10 +49,7 @@ func grpcValidationStatus(err error) error {
 
 func UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-		if err := Validate(ctx, req); err != nil {
-			if status := grpcValidationStatus(err); status != nil {
-				return nil, status
-			}
+		if err := Validate(ctx, req, grpcStatusErr); err != nil {
 			return nil, err
 		}
 		return handler(ctx, req)
@@ -74,10 +73,7 @@ func (s *recvWrapper) RecvMsg(msg any) error {
 	if err := s.ServerStream.RecvMsg(msg); err != nil {
 		return err
 	}
-	if err := Validate(s.Context(), msg); err != nil {
-		if status := grpcValidationStatus(err); status != nil {
-			return status
-		}
+	if err := Validate(s.Context(), msg, grpcStatusErr); err != nil {
 		return err
 	}
 	return nil

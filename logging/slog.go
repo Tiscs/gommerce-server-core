@@ -51,13 +51,10 @@ func (l *SlogLogger) log(ctx context.Context, level Level, message string, args 
 	pc = pcs[0]
 	r := slog.NewRecord(time.Now(), slog.Level(level), message, pc)
 	r.Add(args...)
-	// if span := trace.SpanContextFromContext(ctx); span.IsSampled() {
-	// 	r.Add("trace.id", span.TraceID().String(), "span.id", span.SpanID().String())
-	// }
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	l.logger.Handler().Handle(ctx, r)
+	_ = l.logger.Handler().Handle(ctx, r)
 }
 
 func (l *SlogLogger) Log(ctx context.Context, level Level, message string, args ...any) {
