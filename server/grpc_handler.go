@@ -16,6 +16,7 @@ import (
 	"github.com/rs/cors"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -45,16 +46,17 @@ type GatewayClientRegisterFunc func(context.Context, *runtime.ServeMux, *grpc.Cl
 type GRPCHandler struct {
 	h2cHandler http.Handler
 
-	srvOptions []grpc.ServerOption
-	gtwOptions []runtime.ServeMuxOption
+	srvOptions []grpc.ServerOption      // grpc server options
+	gcdOptions []grpc.DialOption        // grpc client dial options
+	gtwOptions []runtime.ServeMuxOption // grpc gateway options
 
-	unaryInts  []grpc.UnaryServerInterceptor
-	streamInts []grpc.StreamServerInterceptor
+	unaryInts  []grpc.UnaryServerInterceptor  // grpc unary interceptors
+	streamInts []grpc.StreamServerInterceptor // grpc stream interceptors
 
-	srvServers []ServerServiceRegisterFunc
-	gtwClients []GatewayClientRegisterFunc
+	srvServers []ServerServiceRegisterFunc // grpc server services
+	gtwClients []GatewayClientRegisterFunc // grpc gateway clients
 
-	useHealthz bool
+	useHealthz bool // whether to use healthz endpoint
 }
 
 // GRPCHandlerOption is an option for GRPCHandler, used to configure it.
@@ -62,18 +64,14 @@ type GRPCHandlerOption func(*GRPCHandler) error
 
 // NewGRPCHandler returns a new GRPCHandler with the given config and options.
 func NewGRPCHandler(cfg config.ServerHTTPConfig, opts ...GRPCHandlerOption) (*GRPCHandler, error) {
-	ctx := context.Background()
-
-	conn, err := grpc.Dial(cfg.GetAddr(), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		return nil, err
-	}
-
 	h := &GRPCHandler{
 		srvOptions: []grpc.ServerOption{},
 		gtwOptions: []runtime.ServeMuxOption{},
 		unaryInts:  []grpc.UnaryServerInterceptor{},
 		streamInts: []grpc.StreamServerInterceptor{},
+		gcdOptions: []grpc.DialOption{
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+		},
 	}
 
 	for _, opt := range opts {
@@ -82,8 +80,17 @@ func NewGRPCHandler(cfg config.ServerHTTPConfig, opts ...GRPCHandlerOption) (*GR
 		}
 	}
 
-	h.srvOptions = append(h.srvOptions, grpc.ChainUnaryInterceptor(h.unaryInts...))
-	h.srvOptions = append(h.srvOptions, grpc.ChainStreamInterceptor(h.streamInts...))
+	ctx := context.Background()
+
+	conn, err := grpc.DialContext(ctx, cfg.GetAddr(), h.gcdOptions...)
+	if err != nil {
+		return nil, err
+	}
+
+	h.srvOptions = append(h.srvOptions,
+		grpc.ChainUnaryInterceptor(h.unaryInts...),
+		grpc.ChainStreamInterceptor(h.streamInts...),
+	)
 
 	if h.useHealthz {
 		h.gtwOptions = append(h.gtwOptions, runtime.WithHealthzEndpoint(health.NewHealthClient(conn)))
@@ -123,11 +130,20 @@ func (h *GRPCHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // WithOTELStatsHandler returns a GRPCHandlerOption that use an opentelemetry stats handler for grpc server.
 func WithOTELStatsHandler(tp trace.TracerProvider, mp metric.MeterProvider) GRPCHandlerOption {
+	propagator := propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{})
 	return func(h *GRPCHandler) error {
 		// otelgrpc.UnaryServerInterceptor and otelgrpc.StreamServerInterceptor are deprecated,
 		// Use otelgrpc.NewServerHandler instead
-		h.srvOptions = append(h.srvOptions, grpc.StatsHandler(otelgrpc.NewServerHandler()))
-
+		h.srvOptions = append(h.srvOptions, grpc.StatsHandler(otelgrpc.NewServerHandler(
+			otelgrpc.WithTracerProvider(tp),
+			otelgrpc.WithMeterProvider(mp),
+			otelgrpc.WithPropagators(propagator),
+		)))
+		h.gcdOptions = append(h.gcdOptions, grpc.WithStatsHandler(otelgrpc.NewClientHandler(
+			otelgrpc.WithTracerProvider(tp),
+			otelgrpc.WithMeterProvider(mp),
+			otelgrpc.WithPropagators(propagator),
+		)))
 		return nil
 	}
 }
