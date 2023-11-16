@@ -126,7 +126,7 @@ func (s *JsonWebTokenStore) Issue(token *Token, ttl time.Duration) (string, erro
 	return jwt.NewWithClaims(s.signingMethod, claims).SignedString(s.signingKey)
 }
 
-func (s *JsonWebTokenStore) Renew(value string) (string, error) {
+func (s *JsonWebTokenStore) Renew(value string, ttl time.Duration) (string, error) {
 	// parse the token and verify the signature
 	token, err := s.parse(value)
 	if err != nil {
@@ -138,12 +138,7 @@ func (s *JsonWebTokenStore) Renew(value string) (string, error) {
 	if !strings.EqualFold(claims.Type, TOKEN_TYPE_REFRESH) {
 		return "", ErrInvalidTokenType
 	}
-	return s.Issue(&Token{
-		subject: claims.Subject,
-		client:  claims.Client,
-		realm:   claims.Realm,
-		scope:   strings.Split(claims.Scope, " "), // split the scope string into a slice of strings
-	}, claims.ExpiresAt.Sub(claims.IssuedAt.Time))
+	return s.Issue(NewToken(TOKEN_TYPE_BEARER, claims.Realm, claims.Client, claims.Subject, strings.Split(claims.Scope, " ")), ttl)
 }
 
 func (s *JsonWebTokenStore) Verify(value string) (*Token, error) {

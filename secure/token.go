@@ -81,7 +81,7 @@ type TokenStore interface {
 	// Issue issues a new token with the given ttl.
 	Issue(token *Token, ttl time.Duration) (string, error)
 	// Renew renews the token and returns the new one.
-	Renew(value string) (string, error)
+	Renew(value string, ttl time.Duration) (string, error)
 	// Verify verifies the token and returns the token if valid.
 	Verify(value string) (*Token, error)
 	// Revoke revokes the token and returns the token if revoked.
@@ -103,11 +103,11 @@ func (s *InMemoryTokenStore) Issue(token *Token, ttl time.Duration) (string, err
 	return token.id, nil
 }
 
-func (s *InMemoryTokenStore) Renew(value string) (string, error) {
+func (s *InMemoryTokenStore) Renew(value string, ttl time.Duration) (string, error) {
 	if value, exists := s.tokens.Load(value); exists {
 		token := value.(*Token)
 		token.issuedAt = time.Now().UTC()
-		token.expiresAt = token.issuedAt.Add(token.expiresAt.Sub(token.issuedAt))
+		token.expiresAt = token.issuedAt.Add(ttl)
 		return token.id, nil
 	}
 	return "", ErrInvalidToken

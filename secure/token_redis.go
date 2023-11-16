@@ -107,12 +107,12 @@ func (s *RedisTokenStore) Issue(token *Token, ttl time.Duration) (string, error)
 	return s.issue(token, ttl)
 }
 
-func (s *RedisTokenStore) Renew(value string) (string, error) {
+func (s *RedisTokenStore) Renew(value string, ttl time.Duration) (string, error) {
 	token, err := s.verify(value, false)
 	if err != nil {
 		return "", err
 	}
-	return s.issue(token, token.expiresAt.Sub(token.issuedAt))
+	return s.issue(token, ttl)
 }
 
 func (s *RedisTokenStore) Verify(value string) (*Token, error) {
