@@ -35,9 +35,9 @@ func (s Status) Error() string {
 	return string(s)
 }
 
-// GRPCStatus returns the gRPC status for the error.
-// Implements the GRPCStatus() method, see status.FromError(error).
-func (s Status) GRPCStatus() *status.Status {
+// GrpcStatus returns the gRPC status for the error.
+// Implements the GrpcStatus() method, see status.FromError(error).
+func (s Status) GrpcStatus() *status.Status {
 	code := codes.Unknown
 	switch s {
 	case
