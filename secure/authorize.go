@@ -76,3 +76,13 @@ func AuthFuncRequireScope(scope string) AuthFunc {
 		return nil
 	}
 }
+
+// AuthFuncRequireRealm returns an AuthFunc that requires the identity has the given realm.
+func AuthFuncRequireRealm(realm string) AuthFunc {
+	return func(user *Identity) error {
+		if !strings.EqualFold(user.token.Realm(), realm) {
+			return ErrPermissionDenied
+		}
+		return nil
+	}
+}
