@@ -41,24 +41,23 @@ func WithPaging(p pagetoken) func(*bun.SelectQuery) *bun.SelectQuery {
 
 type globalQueryHook struct {
 	logger logging.Logger
-	idw    IdWorker
 }
 
-func (h globalQueryHook) BeforeQuery(ctx context.Context, _ *bun.QueryEvent) context.Context {
-	return context.WithValue(ctx, idWorkderKey{}, h.idw)
+func (h *globalQueryHook) BeforeQuery(ctx context.Context, event *bun.QueryEvent) context.Context {
+	return ctx
 }
 
-func (h globalQueryHook) AfterQuery(ctx context.Context, event *bun.QueryEvent) {
+func (h *globalQueryHook) AfterQuery(ctx context.Context, event *bun.QueryEvent) {
 	duration := time.Since(event.StartTime)
 	if event.Err != nil {
-		h.logger.Error(ctx, event.Query, slog.String("operation", event.Operation()), slog.Duration("duration", duration), slog.String("error", event.Err.Error()))
+		h.logger.Error(ctx, "", slog.String("query", event.Query), slog.String("operation", event.Operation()), slog.Duration("duration", duration), slog.String("error", event.Err.Error()))
 	} else {
-		h.logger.Debug(ctx, event.Query, slog.String("operation", event.Operation()), slog.Duration("duration", duration))
+		h.logger.Debug(ctx, "", slog.String("query", event.Query), slog.String("operation", event.Operation()), slog.Duration("duration", duration))
 	}
 }
 
 // NewBunDB creates a new bun.IDB instance with metrics, tracing and logging.
-func NewBunDB(cfg config.ServerDBConfig, logger logging.Logger, idw IdWorker, tp trace.TracerProvider, mp metric.MeterProvider) (bun.IDB, error) {
+func NewBunDB(cfg config.ServerDBConfig, logger logging.Logger, tp trace.TracerProvider, mp metric.MeterProvider) (bun.IDB, error) {
 	var dialect schema.Dialect
 	switch cfg.GetDriver() {
 	case "pg", "pgsql":
@@ -76,6 +75,7 @@ func NewBunDB(cfg config.ServerDBConfig, logger logging.Logger, idw IdWorker, tp
 	}
 	bdb := bun.NewDB(sdb, dialect, bun.WithDiscardUnknownColumns())
 	bdb.AddQueryHook(bunotel.NewQueryHook(bunotel.WithTracerProvider(tp), bunotel.WithMeterProvider(mp)))
-	bdb.AddQueryHook(globalQueryHook{logger: logger, idw: idw})
+	bdb.AddQueryHook(&globalQueryHook{logger: logger})
+	bdb.RegisterModel()
 	return bdb, nil
 }

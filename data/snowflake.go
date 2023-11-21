@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/choral-io/gommerce-server-core/config"
@@ -15,6 +16,8 @@ const (
 )
 
 var (
+	defaultIdWorker atomic.Value
+
 	ErrIdEpochOutOfRange       = errors.New("the value of 'idEpoch' must be greater than 0")
 	ErrClusterIdBitsOutOfRange = errors.New("the value of 'clusterIdBits' must be greater than 0")
 	ErrWorkerIdBitsOutOfRange  = errors.New("the value of 'workerIdBits' must be greater than 0")
@@ -23,6 +26,29 @@ var (
 	ErrWorkerIdOutOfRange      = errors.New("the value of 'workerId' out of range")
 	ErrTimeMilliBitsOutOfRange = errors.New("the sum of 'clusterIdBits', 'workerIdBits' and 'sequenceBits' must be less than 23")
 )
+
+func init() {
+	var idw IdWorker = &idWorker{
+		idEpoch:       DEFAULT_ID_EPOCH,
+		clusterId:     0,
+		workerId:      0,
+		clusterIdBits: 5,
+		workerIdBits:  5,
+		sequenceBits:  12,
+		sequenceMask:  4095, // int64(1)<<12 - 1
+		sequenceValue: 0,
+		lastMillis:    0,
+	}
+	defaultIdWorker.Store(idw)
+}
+
+func SetDefaultIdWorker(w IdWorker) {
+	defaultIdWorker.Store(w)
+}
+
+func DefaultIdWorker() IdWorker {
+	return defaultIdWorker.Load().(IdWorker)
+}
 
 // IdWorker is used to generate unique id.
 type IdWorker interface {
@@ -137,4 +163,15 @@ func NewIdWorker(cfg config.IdWorkerConfig, seq Seq) (IdWorker, error) {
 		sequenceValue: 0,
 		lastMillis:    0,
 	}, nil
+}
+
+// InitDefaultIdWorker creates a new IdWorker instance with the given config and set it as the default one.
+// If the workerSeqKey is not empty, the workerId will be generated from the Seq.
+func InitDefaultIdWorker(cfg config.IdWorkerConfig, seq Seq) (IdWorker, error) {
+	idw, err := NewIdWorker(cfg, seq)
+	if err != nil {
+		return nil, err
+	}
+	SetDefaultIdWorker(idw)
+	return idw, nil
 }
