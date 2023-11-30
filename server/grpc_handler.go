@@ -42,8 +42,8 @@ type GatewayClientRegister interface {
 // GatewayClientRegisterFunc is a function that registers grpc gateway clients.
 type GatewayClientRegisterFunc func(context.Context, *runtime.ServeMux, *grpc.ClientConn) error
 
-// GrpcHandler is an implementation of http.Handler for gRPC.
-type GrpcHandler struct {
+// GRPCHandler is an implementation of http.Handler for gRPC.
+type GRPCHandler struct {
 	h2cHandler http.Handler
 
 	srvOptions []grpc.ServerOption      // grpc server options
@@ -59,12 +59,12 @@ type GrpcHandler struct {
 	useHealthz bool // whether to use healthz endpoint
 }
 
-// GrpcHandlerOption is an option for GrpcHandler, used to configure it.
-type GrpcHandlerOption func(*GrpcHandler) error
+// GRPCHandlerOption is an option for GRPCHandler, used to configure it.
+type GRPCHandlerOption func(*GRPCHandler) error
 
-// NewGrpcHandler returns a new GrpcHandler with the given config and options.
-func NewGrpcHandler(cfg config.ServerHTTPConfig, opts ...GrpcHandlerOption) (*GrpcHandler, error) {
-	h := &GrpcHandler{
+// NewGRPCHandler returns a new GRPCHandler with the given config and options.
+func NewGRPCHandler(cfg config.ServerHTTPConfig, opts ...GRPCHandlerOption) (*GRPCHandler, error) {
+	h := &GRPCHandler{
 		srvOptions: []grpc.ServerOption{},
 		gtwOptions: []runtime.ServeMuxOption{},
 		unaryInts:  []grpc.UnaryServerInterceptor{},
@@ -124,14 +124,14 @@ func NewGrpcHandler(cfg config.ServerHTTPConfig, opts ...GrpcHandlerOption) (*Gr
 }
 
 // ServeHTTP implements http.Handler.
-func (h *GrpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *GRPCHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.h2cHandler.ServeHTTP(w, r)
 }
 
-// WithOTELStatsHandler returns a GrpcHandlerOption that use an opentelemetry stats handler for grpc server.
-func WithOTELStatsHandler(tp trace.TracerProvider, mp metric.MeterProvider) GrpcHandlerOption {
+// WithOTELStatsHandler returns a GRPCHandlerOption that use an opentelemetry stats handler for grpc server.
+func WithOTELStatsHandler(tp trace.TracerProvider, mp metric.MeterProvider) GRPCHandlerOption {
 	propagator := propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{})
-	return func(h *GrpcHandler) error {
+	return func(h *GRPCHandler) error {
 		// otelgrpc.UnaryServerInterceptor and otelgrpc.StreamServerInterceptor are deprecated,
 		// Use otelgrpc.NewServerHandler instead
 		h.srvOptions = append(h.srvOptions, grpc.StatsHandler(otelgrpc.NewServerHandler(
@@ -148,27 +148,27 @@ func WithOTELStatsHandler(tp trace.TracerProvider, mp metric.MeterProvider) Grpc
 	}
 }
 
-// WithUnaryInterceptors returns a GrpcHandlerOption that adds the given unary interceptors to grpc handler.
-func WithUnaryInterceptors(ints ...grpc.UnaryServerInterceptor) GrpcHandlerOption {
-	return func(h *GrpcHandler) error {
+// WithUnaryInterceptors returns a GRPCHandlerOption that adds the given unary interceptors to grpc handler.
+func WithUnaryInterceptors(ints ...grpc.UnaryServerInterceptor) GRPCHandlerOption {
+	return func(h *GRPCHandler) error {
 		h.unaryInts = append(h.unaryInts, ints...)
 		return nil
 	}
 }
 
-// WithStreamInterceptors returns a GrpcHandlerOption that adds the given stream interceptors to grpc handler.
-func WithStreamInterceptors(ints ...grpc.StreamServerInterceptor) GrpcHandlerOption {
-	return func(h *GrpcHandler) error {
+// WithStreamInterceptors returns a GRPCHandlerOption that adds the given stream interceptors to grpc handler.
+func WithStreamInterceptors(ints ...grpc.StreamServerInterceptor) GRPCHandlerOption {
+	return func(h *GRPCHandler) error {
 		h.streamInts = append(h.streamInts, ints...)
 
 		return nil
 	}
 }
 
-// WithLoggingInterceptor returns a GrpcHandlerOption that adds a logging interceptor to grpc handler.
-func WithLoggingInterceptor(logger logging.Logger) GrpcHandlerOption {
-	grpclog := logging.NewGrpcLogger(logger)
-	return func(h *GrpcHandler) error {
+// WithLoggingInterceptor returns a GRPCHandlerOption that adds a logging interceptor to grpc handler.
+func WithLoggingInterceptor(logger logging.Logger) GRPCHandlerOption {
+	grpclog := logging.NewGRPCLogger(logger)
+	return func(h *GRPCHandler) error {
 		h.unaryInts = append(h.unaryInts, grpclog.UnaryServerInterceptor())
 		h.streamInts = append(h.streamInts, grpclog.StreamServerInterceptor())
 
@@ -176,10 +176,10 @@ func WithLoggingInterceptor(logger logging.Logger) GrpcHandlerOption {
 	}
 }
 
-// WithRecoveryInterceptor returns a GrpcHandlerOption that adds a recovery interceptor to grpc handler.
+// WithRecoveryInterceptor returns a GRPCHandlerOption that adds a recovery interceptor to grpc handler.
 // The given recovery handler will be called when a panic occurs.
-func WithRecoveryInterceptor(f recovery.RecoveryHandlerFuncContext) GrpcHandlerOption {
-	return func(h *GrpcHandler) error {
+func WithRecoveryInterceptor(f recovery.RecoveryHandlerFuncContext) GRPCHandlerOption {
+	return func(h *GRPCHandler) error {
 		h.unaryInts = append(h.unaryInts, recovery.UnaryServerInterceptor(recovery.WithRecoveryHandlerContext(f)))
 		h.streamInts = append(h.streamInts, recovery.StreamServerInterceptor(recovery.WithRecoveryHandlerContext(f)))
 
@@ -187,9 +187,9 @@ func WithRecoveryInterceptor(f recovery.RecoveryHandlerFuncContext) GrpcHandlerO
 	}
 }
 
-// WithValidatorInterceptor returns a GrpcHandlerOption that adds a validator interceptor to grpc handler.
-func WithValidatorInterceptor() GrpcHandlerOption {
-	return func(h *GrpcHandler) error {
+// WithValidatorInterceptor returns a GRPCHandlerOption that adds a validator interceptor to grpc handler.
+func WithValidatorInterceptor() GRPCHandlerOption {
+	return func(h *GRPCHandler) error {
 		h.unaryInts = append(h.unaryInts, validator.UnaryServerInterceptor())
 		h.streamInts = append(h.streamInts, validator.StreamServerInterceptor())
 
@@ -197,10 +197,10 @@ func WithValidatorInterceptor() GrpcHandlerOption {
 	}
 }
 
-// WithSecureInterceptor returns a GrpcHandlerOption that adds a secure interceptor to grpc handler.
+// WithSecureInterceptor returns a GRPCHandlerOption that adds a secure interceptor to grpc handler.
 // The given matcher will be used to determine which methods should be secured.
-func WithSecureInterceptor(auth *secure.ServerAuthorizer, matcher selector.Matcher) GrpcHandlerOption {
-	return func(h *GrpcHandler) error {
+func WithSecureInterceptor(auth *secure.ServerAuthorizer, matcher selector.Matcher) GRPCHandlerOption {
+	return func(h *GRPCHandler) error {
 		if matcher == nil {
 			h.unaryInts = append(h.unaryInts, auth.UnaryServerInterceptor())
 			h.streamInts = append(h.streamInts, auth.StreamServerInterceptor())
@@ -213,10 +213,10 @@ func WithSecureInterceptor(auth *secure.ServerAuthorizer, matcher selector.Match
 	}
 }
 
-// WithRegistrations returns a GrpcHandlerOption that registers grpc servers and gateway clients.
+// WithRegistrations returns a GRPCHandlerOption that registers grpc servers and gateway clients.
 // The given registrations must implement ServerServiceRegister or GatewayClientRegister.
-func WithRegistrations(regs ...any) GrpcHandlerOption {
-	return func(h *GrpcHandler) error {
+func WithRegistrations(regs ...any) GRPCHandlerOption {
+	return func(h *GRPCHandler) error {
 		for _, reg := range regs {
 			if _, ok := reg.(health.HealthServer); ok {
 				h.useHealthz = true

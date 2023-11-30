@@ -164,14 +164,3 @@ func NewIdWorker(cfg config.IdWorkerConfig, seq Seq) (IdWorker, error) {
 		lastMillis:    0,
 	}, nil
 }
-
-// InitDefaultIdWorker creates a new IdWorker instance with the given config and set it as the default one.
-// If the workerSeqKey is not empty, the workerId will be generated from the Seq.
-func InitDefaultIdWorker(cfg config.IdWorkerConfig, seq Seq) (IdWorker, error) {
-	idw, err := NewIdWorker(cfg, seq)
-	if err != nil {
-		return nil, err
-	}
-	SetDefaultIdWorker(idw)
-	return idw, nil
-}
