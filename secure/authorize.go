@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/antonmedv/expr"
+	"github.com/expr-lang/expr"
 )
 
 var (

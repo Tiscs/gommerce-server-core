@@ -52,7 +52,11 @@ func UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 		if err := Validate(ctx, req, grpcStatusErr); err != nil {
 			return nil, err
 		}
-		return handler(ctx, req)
+		if resp, err := handler(ctx, req); err != nil {
+			return nil, grpcStatusErr(ctx, err)
+		} else {
+			return resp, nil
+		}
 	}
 }
 

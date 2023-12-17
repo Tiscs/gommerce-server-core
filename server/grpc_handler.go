@@ -160,7 +160,6 @@ func WithUnaryInterceptors(ints ...grpc.UnaryServerInterceptor) GRPCHandlerOptio
 func WithStreamInterceptors(ints ...grpc.StreamServerInterceptor) GRPCHandlerOption {
 	return func(h *GRPCHandler) error {
 		h.streamInts = append(h.streamInts, ints...)
-
 		return nil
 	}
 }
@@ -171,7 +170,6 @@ func WithLoggingInterceptor(logger logging.Logger) GRPCHandlerOption {
 	return func(h *GRPCHandler) error {
 		h.unaryInts = append(h.unaryInts, grpclog.UnaryServerInterceptor())
 		h.streamInts = append(h.streamInts, grpclog.StreamServerInterceptor())
-
 		return nil
 	}
 }
@@ -182,7 +180,6 @@ func WithRecoveryInterceptor(f recovery.RecoveryHandlerFuncContext) GRPCHandlerO
 	return func(h *GRPCHandler) error {
 		h.unaryInts = append(h.unaryInts, recovery.UnaryServerInterceptor(recovery.WithRecoveryHandlerContext(f)))
 		h.streamInts = append(h.streamInts, recovery.StreamServerInterceptor(recovery.WithRecoveryHandlerContext(f)))
-
 		return nil
 	}
 }
@@ -192,7 +189,6 @@ func WithValidatorInterceptor() GRPCHandlerOption {
 	return func(h *GRPCHandler) error {
 		h.unaryInts = append(h.unaryInts, validator.UnaryServerInterceptor())
 		h.streamInts = append(h.streamInts, validator.StreamServerInterceptor())
-
 		return nil
 	}
 }
@@ -208,7 +204,6 @@ func WithSecureInterceptor(auth *secure.ServerAuthorizer, matcher selector.Match
 			h.unaryInts = append(h.unaryInts, selector.UnaryServerInterceptor(auth.UnaryServerInterceptor(), matcher))
 			h.streamInts = append(h.streamInts, selector.StreamServerInterceptor(auth.StreamServerInterceptor(), matcher))
 		}
-
 		return nil
 	}
 }

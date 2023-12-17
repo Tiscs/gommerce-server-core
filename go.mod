@@ -3,12 +3,12 @@ module github.com/choral-io/gommerce-server-core
 go 1.21.0
 
 require (
-	github.com/antonmedv/expr v1.15.5
-	github.com/golang-jwt/jwt/v5 v5.1.0
-	github.com/google/uuid v1.4.0
+	github.com/expr-lang/expr v1.15.7
+	github.com/golang-jwt/jwt/v5 v5.2.0
+	github.com/google/uuid v1.5.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.1
-	github.com/redis/rueidis v1.0.22
+	github.com/redis/rueidis v1.0.24
 	github.com/rs/cors v1.10.1
 	github.com/uptrace/bun v1.1.16
 	github.com/uptrace/bun/dialect/mssqldialect v1.1.16
@@ -31,8 +31,8 @@ require (
 	go.uber.org/fx v1.20.1
 	go.uber.org/zap v1.26.0
 	golang.org/x/net v0.19.0
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20231127180814-3a041ad873d4
-	google.golang.org/grpc v1.59.0
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20231212172506-995d672761c0
+	google.golang.org/grpc v1.60.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -53,6 +53,6 @@ require (
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20231127180814-3a041ad873d4 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20231212172506-995d672761c0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )
