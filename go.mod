@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.5.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.1
-	github.com/redis/rueidis v1.0.24
+	github.com/redis/rueidis v1.0.25
 	github.com/rs/cors v1.10.1
 	github.com/uptrace/bun v1.1.16
 	github.com/uptrace/bun/dialect/mssqldialect v1.1.16
@@ -32,14 +32,14 @@ require (
 	go.uber.org/zap v1.26.0
 	golang.org/x/net v0.19.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231212172506-995d672761c0
-	google.golang.org/grpc v1.60.0
+	google.golang.org/grpc v1.60.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
 	cloud.google.com/go/compute v1.23.3 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
-	github.com/go-logr/logr v1.3.0 // indirect
+	github.com/go-logr/logr v1.4.0 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
