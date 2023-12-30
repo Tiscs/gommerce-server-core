@@ -42,10 +42,12 @@ func init() {
 	defaultIdWorker.Store(idw)
 }
 
+// SetDefaultIdWorker sets the default IdWorker instance.
 func SetDefaultIdWorker(w IdWorker) {
 	defaultIdWorker.Store(w)
 }
 
+// DefaultIdWorker returns the default IdWorker instance.
 func DefaultIdWorker() IdWorker {
 	return defaultIdWorker.Load().(IdWorker)
 }

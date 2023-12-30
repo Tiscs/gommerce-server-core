@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.5.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.1
-	github.com/redis/rueidis v1.0.25
+	github.com/redis/rueidis v1.0.26
 	github.com/rs/cors v1.10.1
 	github.com/uptrace/bun v1.1.16
 	github.com/uptrace/bun/dialect/mssqldialect v1.1.16
