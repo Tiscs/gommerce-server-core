@@ -148,6 +148,19 @@ func WithOTELStatsHandler(tp trace.TracerProvider, mp metric.MeterProvider) GRPC
 	}
 }
 
+// WithStaticFileHandler returns a GRPCHandlerOption that adds a static file handler to grpc gateway.
+func WithStaticFileHandler(pattern string, fs http.FileSystem) GRPCHandlerOption {
+	fileServer := http.FileServer(fs)
+	return func(h *GRPCHandler) error {
+		h.gtwOptions = append(h.gtwOptions, func(mux *runtime.ServeMux) {
+			mux.HandlePath("GET", pattern, func(w http.ResponseWriter, r *http.Request, _ map[string]string) {
+				fileServer.ServeHTTP(w, r)
+			})
+		})
+		return nil
+	}
+}
+
 // WithUnaryInterceptors returns a GRPCHandlerOption that adds the given unary interceptors to grpc handler.
 func WithUnaryInterceptors(ints ...grpc.UnaryServerInterceptor) GRPCHandlerOption {
 	return func(h *GRPCHandler) error {

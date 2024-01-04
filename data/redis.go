@@ -10,16 +10,8 @@ import (
 
 // NewRedisClient creates a new redis client with tracing and metrics.
 func NewRedisClient(cfg config.ServerRedisConfig, tp trace.TracerProvider, mp metric.MeterProvider) (rueidis.Client, error) {
-	rdb, err := rueidis.NewClient(rueidis.ClientOption{
+	return rueidisotel.NewClient(rueidis.ClientOption{
 		InitAddress: cfg.GetInitAddress(),
 		SelectDB:    cfg.GetSelectDB(),
-	})
-	if err != nil {
-		return nil, err
-	}
-	rdb = rueidisotel.WithClient(rdb,
-		rueidisotel.WithTracerProvider(tp),
-		rueidisotel.WithMeterProvider(mp),
-	)
-	return rdb, nil
+	}, rueidisotel.WithTracerProvider(tp), rueidisotel.WithMeterProvider(mp))
 }
