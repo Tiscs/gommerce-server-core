@@ -87,7 +87,7 @@ type serverConfig struct {
 	HTTP    *serverHTTPConfig
 	DB      *serverDBConfig
 	Redis   *serverRedisConfig
-	AMQP    *serverAMQPConfig
+	NATS    *serverNATSConfig
 }
 
 func (c *serverConfig) GetDebug() bool {
@@ -145,11 +145,11 @@ func (c *serverConfig) GetRedisConfig() ServerRedisConfig {
 	return c.Redis
 }
 
-func (c *serverConfig) GetAMQPConfig() ServerAMQPConfig {
-	if c.AMQP == nil {
-		c.AMQP = &serverAMQPConfig{}
+func (c *serverConfig) GetNATSConfig() ServerNATSConfig {
+	if c.NATS == nil {
+		c.NATS = &serverNATSConfig{}
 	}
-	return c.AMQP
+	return c.NATS
 }
 
 type serverHTTPConfig struct {
@@ -206,13 +206,13 @@ func (c *serverRedisConfig) GetSelectDB() int {
 	}
 }
 
-type serverAMQPConfig struct {
+type serverNATSConfig struct {
 	URL *string
 }
 
-func (c *serverAMQPConfig) GetURL() string {
+func (c *serverNATSConfig) GetURL() string {
 	if c.URL == nil {
-		return "amqp://guest:guest@localhost:5672/"
+		return "nats://127.0.0.1:4222"
 	} else {
 		return *c.URL
 	}

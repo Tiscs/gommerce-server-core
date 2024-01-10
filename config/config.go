@@ -14,7 +14,7 @@ type extractSectionsResult struct {
 	ServerHTTPConfig  ServerHTTPConfig
 	ServerDBConfig    ServerDBConfig
 	ServerRedisConfig ServerRedisConfig
-	ServerAMQPConfig  ServerAMQPConfig
+	ServerNATSConfig  ServerNATSConfig
 	IdWorkerConfig    IdWorkerConfig
 	LoggingConfig     LoggingConfig
 	TraceConfig       TraceConfig
@@ -30,7 +30,7 @@ func ExtractSections(cfg RootConfig) extractSectionsResult {
 		ServerHTTPConfig:  cfg.GetServerConfig().GetHTTPConfig(),
 		ServerDBConfig:    cfg.GetServerConfig().GetDBConfig(),
 		ServerRedisConfig: cfg.GetServerConfig().GetRedisConfig(),
-		ServerAMQPConfig:  cfg.GetServerConfig().GetAMQPConfig(),
+		ServerNATSConfig:  cfg.GetServerConfig().GetNATSConfig(),
 		IdWorkerConfig:    cfg.GetIdWorkerConfig(),
 		LoggingConfig:     cfg.GetLoggingConfig(),
 		TraceConfig:       cfg.GetTraceConfig(),
@@ -57,7 +57,7 @@ type ServerConfig interface {
 	GetHTTPConfig() ServerHTTPConfig
 	GetDBConfig() ServerDBConfig
 	GetRedisConfig() ServerRedisConfig
-	GetAMQPConfig() ServerAMQPConfig
+	GetNATSConfig() ServerNATSConfig
 }
 
 type ServerHTTPConfig interface {
@@ -74,7 +74,7 @@ type ServerRedisConfig interface {
 	GetSelectDB() int
 }
 
-type ServerAMQPConfig interface {
+type ServerNATSConfig interface {
 	GetURL() string
 }
 

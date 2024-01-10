@@ -12,8 +12,8 @@ server:
     init-address:
       - 127.0.0.1:6379
     select-db: 0
-  amqp:
-    url: amqp://username:password@127.0.0.1:5672/
+  nats:
+    url: nats://user:pass@127.0.0.1:4222
 id-worker:
   id-epoch: 1640995200000 # Defaults to: 2022-01-01T00:00:00Z
   cluster-id: 0
