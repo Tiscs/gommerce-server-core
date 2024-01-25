@@ -3,9 +3,9 @@ module github.com/choral-io/gommerce-server-core
 go 1.21.0
 
 require (
-	github.com/expr-lang/expr v1.15.8
+	github.com/expr-lang/expr v1.16.0
 	github.com/golang-jwt/jwt/v5 v5.2.0
-	github.com/google/uuid v1.5.0
+	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.0
 	github.com/nats-io/nats.go v1.32.0
@@ -33,13 +33,12 @@ require (
 	go.uber.org/fx v1.20.1
 	go.uber.org/zap v1.26.0
 	golang.org/x/net v0.20.0
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240116215550-a9fa1716bcac
-	google.golang.org/grpc v1.60.1
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240123012728-ef4313101c80
+	google.golang.org/grpc v1.61.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
-	cloud.google.com/go/compute v1.23.3 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -59,6 +58,6 @@ require (
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240116215550-a9fa1716bcac // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240123012728-ef4313101c80 // indirect
 	google.golang.org/protobuf v1.32.0 // indirect
 )
