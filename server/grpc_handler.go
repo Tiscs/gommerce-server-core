@@ -153,9 +153,12 @@ func WithStaticFileHandler(pattern string, fs http.FileSystem) GRPCHandlerOption
 	fileServer := http.FileServer(fs)
 	return func(h *GRPCHandler) error {
 		h.gtwOptions = append(h.gtwOptions, func(mux *runtime.ServeMux) {
-			mux.HandlePath("GET", pattern, func(w http.ResponseWriter, r *http.Request, _ map[string]string) {
+			err := mux.HandlePath("GET", pattern, func(w http.ResponseWriter, r *http.Request, _ map[string]string) {
 				fileServer.ServeHTTP(w, r)
 			})
+			if err != nil {
+				panic(err)
+			}
 		})
 		return nil
 	}
