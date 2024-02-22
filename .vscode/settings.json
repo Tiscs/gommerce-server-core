@@ -8,10 +8,10 @@
     "**/Thumbs.db": true,
     "**/__debug_bin": true
   },
-  "editor.formatOnSave": true,
-  "editor.foldingStrategy": "indentation",
   "files.insertFinalNewline": true,
   "files.autoSave": "onWindowChange",
+  "editor.formatOnSave": true,
+  "editor.foldingStrategy": "indentation",
   "go.testFlags": [
     "-v",
     "-count=1"
