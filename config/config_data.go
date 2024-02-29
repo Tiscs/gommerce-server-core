@@ -186,7 +186,8 @@ func (c *serverRedisConfig) GetSelectDB() int {
 }
 
 type serverNATSConfig struct {
-	URL *string
+	URL    *string
+	NoEcho *bool `yaml:"no-echo"`
 }
 
 func (c *serverNATSConfig) GetURL() string {
@@ -194,6 +195,14 @@ func (c *serverNATSConfig) GetURL() string {
 		return "nats://127.0.0.1:4222"
 	} else {
 		return *c.URL
+	}
+}
+
+func (c *serverNATSConfig) GetNoEcho() bool {
+	if c.NoEcho == nil {
+		return false
+	} else {
+		return *c.NoEcho
 	}
 }
 

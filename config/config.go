@@ -76,6 +76,7 @@ type ServerRedisConfig interface {
 
 type ServerNATSConfig interface {
 	GetURL() string
+	GetNoEcho() bool
 }
 
 type IdWorkerConfig interface {

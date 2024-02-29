@@ -6,5 +6,9 @@ import (
 )
 
 func NewNATSConn(cfg config.ServerNATSConfig) (*nats.Conn, error) {
-	return nats.Connect(cfg.GetURL(), nats.NoEcho())
+	opts := []nats.Option{}
+	if cfg.GetNoEcho() {
+		opts = append(opts, nats.NoEcho())
+	}
+	return nats.Connect(cfg.GetURL(), opts...)
 }
