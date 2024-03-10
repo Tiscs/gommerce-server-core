@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"errors"
+	"io/fs"
 	"net/http"
 	"strings"
 
@@ -149,12 +150,19 @@ func WithOTELStatsHandler(tp trace.TracerProvider, mp metric.MeterProvider) GRPC
 }
 
 // WithStaticFileHandler returns a GRPCHandlerOption that adds a static file handler to grpc gateway.
-func WithStaticFileHandler(pattern string, fs http.FileSystem) GRPCHandlerOption {
-	fileServer := http.FileServer(fs)
+func WithStaticFileHandler(pattern string, sfs fs.FS) GRPCHandlerOption {
+	hfs := http.FileServer(http.FS(sfs))
 	return func(h *GRPCHandler) error {
 		h.gtwOptions = append(h.gtwOptions, func(mux *runtime.ServeMux) {
 			err := mux.HandlePath("GET", pattern, func(w http.ResponseWriter, r *http.Request, _ map[string]string) {
-				fileServer.ServeHTTP(w, r)
+				fi, err := fs.Stat(sfs, strings.TrimLeft(r.URL.Path, "/"))
+				if errors.Is(err, fs.ErrNotExist) || fi.IsDir() {
+					http.ServeFileFS(w, r, sfs, "index.html")
+				} else if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				} else {
+					hfs.ServeHTTP(w, r)
+				}
 			})
 			if err != nil {
 				panic(err)
