@@ -10,5 +10,5 @@ func NewNATSConn(cfg config.ServerNATSConfig) (*nats.Conn, error) {
 	if cfg.GetNoEcho() {
 		opts = append(opts, nats.NoEcho())
 	}
-	return nats.Connect(cfg.GetURL(), opts...)
+	return nats.Connect(cfg.GetSeedURL(), opts...)
 }

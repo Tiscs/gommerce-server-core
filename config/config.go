@@ -4,22 +4,23 @@ import (
 	"log/slog"
 	"time"
 
-	"go.uber.org/dig"
+	"go.uber.org/fx"
 )
 
 type extractSectionsResult struct {
-	dig.Out
+	fx.Out
 
 	ServerConfig      ServerConfig
 	ServerHTTPConfig  ServerHTTPConfig
 	ServerDBConfig    ServerDBConfig
 	ServerRedisConfig ServerRedisConfig
 	ServerNATSConfig  ServerNATSConfig
-	IdWorkerConfig    IdWorkerConfig
+	SnowflakeConfig   SnowflakeConfig
 	LoggingConfig     LoggingConfig
 	TraceConfig       TraceConfig
 	MetricConfig      MetricConfig
-	TokenConfig       TokenConfig
+	SecureConfig      SecureConfig
+	SecureTokenConfig SecureTokenConfig
 }
 
 // ExtractSections extracts sections from RootConfig.
@@ -31,22 +32,23 @@ func ExtractSections(cfg RootConfig) extractSectionsResult {
 		ServerDBConfig:    cfg.GetServerConfig().GetDBConfig(),
 		ServerRedisConfig: cfg.GetServerConfig().GetRedisConfig(),
 		ServerNATSConfig:  cfg.GetServerConfig().GetNATSConfig(),
-		IdWorkerConfig:    cfg.GetIdWorkerConfig(),
+		SnowflakeConfig:   cfg.GetSnowflakeConfig(),
 		LoggingConfig:     cfg.GetLoggingConfig(),
 		TraceConfig:       cfg.GetTraceConfig(),
 		MetricConfig:      cfg.GetMetricConfig(),
-		TokenConfig:       cfg.GetTokenConfig(),
+		SecureConfig:      cfg.GetSecureConfig(),
+		SecureTokenConfig: cfg.GetSecureConfig().GetToken(),
 	}
 	return result
 }
 
 type RootConfig interface {
 	GetServerConfig() ServerConfig
-	GetIdWorkerConfig() IdWorkerConfig
+	GetSnowflakeConfig() SnowflakeConfig
 	GetLoggingConfig() LoggingConfig
 	GetTraceConfig() TraceConfig
 	GetMetricConfig() MetricConfig
-	GetTokenConfig() TokenConfig
+	GetSecureConfig() SecureConfig
 }
 
 type ServerConfig interface {
@@ -70,16 +72,16 @@ type ServerDBConfig interface {
 }
 
 type ServerRedisConfig interface {
-	GetInitAddress() []string
+	GetInitAddr() string
 	GetSelectDB() int
 }
 
 type ServerNATSConfig interface {
-	GetURL() string
+	GetSeedURL() string
 	GetNoEcho() bool
 }
 
-type IdWorkerConfig interface {
+type SnowflakeConfig interface {
 	GetIdEpoch() int64
 	GetClusterId() int64
 	GetWorkerId() int64
@@ -124,7 +126,11 @@ type MetricExporterConfig interface {
 	GetInsecure() bool
 }
 
-type TokenConfig interface {
+type SecureConfig interface {
+	GetToken() SecureTokenConfig
+}
+
+type SecureTokenConfig interface {
 	GetStore() string
 	GetBucket() string
 	GetAccessTokenTTL() time.Duration

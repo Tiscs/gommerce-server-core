@@ -18,7 +18,7 @@ const (
 // NewTokenStore returns a new TokenStore with the given config.
 // There are three types of token stores: jwt, redis, and memory.
 // rueidis.Client is required if the type of token store is redis.
-func NewTokenStore(cfg config.TokenConfig, rdb rueidis.Client) (TokenStore, error) {
+func NewTokenStore(cfg config.SecureTokenConfig, rdb rueidis.Client) (TokenStore, error) {
 	switch cfg.GetStore() {
 	case "jwt":
 		alg := jwt.GetSigningMethod(cfg.GetSigningMethod())

@@ -9,16 +9,16 @@ server:
     driver: pg
     source: postgres://username:password@127.0.0.1:5432/dbname?sslmode=disable # https://bun.uptrace.dev/postgres/#pgdriver
   redis:
-    init-address:
-      - 127.0.0.1:6379
+    init-addr: 127.0.0.1:6379
     select-db: 0
   nats:
-    url: nats://user:pass@127.0.0.1:4222
-id-worker:
-  id-epoch: 1640995200000 # Defaults to: 2022-01-01T00:00:00Z
+    seed-url: nats://user:pass@127.0.0.1:4222
+    no-echo: false
+snowflake:
+  id-epoch: 1704067200000 # Defaults to: 2024-01-01T00:00:00Z
   cluster-id: 0
-  worker_id: 0
-  worker-seq-key: snowflake-id-worker-gommerce-server-core
+  worker-id: 0
+  worker-seq-key: gommerce-server-core-id-worker-seq
   cluster-id-bits: 5
   worker-id-bits: 5
   sequence-bits: 12
@@ -39,52 +39,53 @@ metric:
     protocol: otlp-grpc # otlp-grpc otlp-http stdout noop
     endpoint: 127.0.0.1:4317
     insecure: true
-token:
-  store: jwt # jwt, redis, memory
-  bucket: gommerce:tokens
-  access-token-ttl: 48h # 2 days
-  refresh-token-ttl: 168h # 7 days
-  issuer: gommerce-server-core
-  audience: gommerce-server
-  signing-method: RS256
-  public-key-file: ./config/jwt/public.pem
-  public-key-value: |
-    -----BEGIN PUBLIC KEY-----
-    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvcebWZwyyf+s1RsHV3u5
-    LDEdLRm/O8uSj8lUyV084Vq7WgueHWNo+quTHbQY9CMCtgG4LJjq5b8xxX/ESXYk
-    D9SgBnEbtDoVmB121fKfR4tQdxyuMUWgisDMZTZFKmt4pdyY40bTTw1bQqvzhvg4
-    zea+ZPNrBE5H+pr4tCjcp6Genocyd8bJlAcqD11IOJUjzBCar5rpSATdSKm645sS
-    cuMPv88OaVxPTQ3o0wjkb33hErhE7FQtpSoO/23uj3vlPwIe5hZT6fPDB26w5ojU
-    GbDI6GWCTOsDOAOiEgghtpbG3LrunWNFC+2IdWeHqsOyPgcgBQuQ+OaFYWrbGryx
-    gQIDAQAB
-    -----END PUBLIC KEY-----
-  private-key-file: ./config/jwt/private.pem
-  private-key-value: |
-    -----BEGIN PRIVATE KEY-----
-    MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC9x5tZnDLJ/6zV
-    GwdXe7ksMR0tGb87y5KPyVTJXTzhWrtaC54dY2j6q5MdtBj0IwK2AbgsmOrlvzHF
-    f8RJdiQP1KAGcRu0OhWYHXbV8p9Hi1B3HK4xRaCKwMxlNkUqa3il3JjjRtNPDVtC
-    q/OG+DjN5r5k82sETkf6mvi0KNynoZ6ehzJ3xsmUByoPXUg4lSPMEJqvmulIBN1I
-    qbrjmxJy4w+/zw5pXE9NDejTCORvfeESuETsVC2lKg7/be6Pe+U/Ah7mFlPp88MH
-    brDmiNQZsMjoZYJM6wM4A6ISCCG2lsbcuu6dY0UL7Yh1Z4eqw7I+ByAFC5D45oVh
-    atsavLGBAgMBAAECggEAAXNmL6AvDzZCJvrm6ndKqhjSBUc+HAHpY+oBGOz6iyp7
-    ZivSkJzy73+iR0baLfuaiLOoqcadfRYiFkVsxbb+fZR9iK8SrCUJhzkqcGZDa3OY
-    MODqP/wtRwJETb3Fd5aMvI/cJ1iiQudyPCc+XFjHbmOGLxVhSw4iJLtMjWwGi82A
-    HxhCqYnB+2DvYAFYmBUgedkC75yRYcY5NdVQmzWx4YESKPj3J6j+B4M8kfjU9HTx
-    IDHTkJRKndMQDXxKhqkKxRjrzvGqCH+fjpaqk+l3izJ9UeyV4cQ1os+WrGouZEJg
-    ZTqJYYKTXGjSLawWVv14vQXQRgDkcVuNbEz0HjK25QKBgQDf1YHP81gDBgbR7Ifw
-    rkEkwM4/jEkvXUSdoLSeUAeYqhYSvbHkeZF/hYdRxcPJCcwUwpslKxeXHemRb4si
-    Z0mqYoUwTG/2qmDhYD/w8cQMuxz18X+wP53Opk00mOCuAJoYFTg8EAWNSBdnR5i+
-    XcmzagYMry/+wT3bCT5HGOQK2wKBgQDZDUwGIhw+DcnLpclIgMMapljzF08stlJl
-    cIDlH24gxcJt6YXZZLshRyJlYWA56I7BAGz1pbeiOLmnsW9PgNDsnEM9XBdNUyqd
-    EuKHc/q1qCQqpCrm0n4NuXRDkkQqansSHF4bR2Jh7aTGe9oFjnpjv8tFgTTDp5DC
-    8kwLf6Ht0wKBgQDGvN6WkbyqapZxm28T3tROWraFq/xrBofe4QqdqfcksJgKqc0i
-    TGJIdHmyvEJa5M0D/coc1UcL0O5KSFyj/ktk8jbJrISY4axFT91WBIOKvjQ3luZF
-    yiZGjlfshHSxai1nhqe4hI05ZTIKbIKNO97T4yZd6spViqRuL6XRIKORkwKBgHtT
-    P8/4T52+jdsFHsHwT2rz+3Rb2SOpkFWMv9/vpM5AL0HuPpwPzPeSiGucEWW1ym7F
-    BCPq/dTRcENk4L8GjS7zdo0Fp0PLLlpDIa0e6+ONXsdPsgSmsvKvXe0KzWpgR/85
-    WQsc2zyTH12bf3xKwSWuExwx1r4Ylnr92tFpuqL7AoGBAKigPtOI5n6hDs61be6O
-    5IjWPUsHzw5VMHtOq62IAKBSGLu5Nysc4jG/051xOaCFF1jWbI5TYPQ8pna+rmYr
-    deBBJMH3HKz05QAmwYf2S9iaPfw/I7Lo4LAThEaQvrE9ir6JMAoXstRQXbQNoqhR
-    otx9iihJtiN8mDOCj61Tggpj
-    -----END PRIVATE KEY-----
+secure:
+  token:
+    store: jwt # jwt, redis, memory
+    bucket: gommerce:tokens
+    access-token-ttl: 48h # 2 days
+    refresh-token-ttl: 168h # 7 days
+    issuer: gommerce-server-core
+    audience: gommerce-server
+    signing-method: RS256
+    public-key-file: ./config/jwt/public.pem
+    public-key-value: |
+      -----BEGIN PUBLIC KEY-----
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvcebWZwyyf+s1RsHV3u5
+      LDEdLRm/O8uSj8lUyV084Vq7WgueHWNo+quTHbQY9CMCtgG4LJjq5b8xxX/ESXYk
+      D9SgBnEbtDoVmB121fKfR4tQdxyuMUWgisDMZTZFKmt4pdyY40bTTw1bQqvzhvg4
+      zea+ZPNrBE5H+pr4tCjcp6Genocyd8bJlAcqD11IOJUjzBCar5rpSATdSKm645sS
+      cuMPv88OaVxPTQ3o0wjkb33hErhE7FQtpSoO/23uj3vlPwIe5hZT6fPDB26w5ojU
+      GbDI6GWCTOsDOAOiEgghtpbG3LrunWNFC+2IdWeHqsOyPgcgBQuQ+OaFYWrbGryx
+      gQIDAQAB
+      -----END PUBLIC KEY-----
+    private-key-file: ./config/jwt/private.pem
+    private-key-value: |
+      -----BEGIN PRIVATE KEY-----
+      MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC9x5tZnDLJ/6zV
+      GwdXe7ksMR0tGb87y5KPyVTJXTzhWrtaC54dY2j6q5MdtBj0IwK2AbgsmOrlvzHF
+      f8RJdiQP1KAGcRu0OhWYHXbV8p9Hi1B3HK4xRaCKwMxlNkUqa3il3JjjRtNPDVtC
+      q/OG+DjN5r5k82sETkf6mvi0KNynoZ6ehzJ3xsmUByoPXUg4lSPMEJqvmulIBN1I
+      qbrjmxJy4w+/zw5pXE9NDejTCORvfeESuETsVC2lKg7/be6Pe+U/Ah7mFlPp88MH
+      brDmiNQZsMjoZYJM6wM4A6ISCCG2lsbcuu6dY0UL7Yh1Z4eqw7I+ByAFC5D45oVh
+      atsavLGBAgMBAAECggEAAXNmL6AvDzZCJvrm6ndKqhjSBUc+HAHpY+oBGOz6iyp7
+      ZivSkJzy73+iR0baLfuaiLOoqcadfRYiFkVsxbb+fZR9iK8SrCUJhzkqcGZDa3OY
+      MODqP/wtRwJETb3Fd5aMvI/cJ1iiQudyPCc+XFjHbmOGLxVhSw4iJLtMjWwGi82A
+      HxhCqYnB+2DvYAFYmBUgedkC75yRYcY5NdVQmzWx4YESKPj3J6j+B4M8kfjU9HTx
+      IDHTkJRKndMQDXxKhqkKxRjrzvGqCH+fjpaqk+l3izJ9UeyV4cQ1os+WrGouZEJg
+      ZTqJYYKTXGjSLawWVv14vQXQRgDkcVuNbEz0HjK25QKBgQDf1YHP81gDBgbR7Ifw
+      rkEkwM4/jEkvXUSdoLSeUAeYqhYSvbHkeZF/hYdRxcPJCcwUwpslKxeXHemRb4si
+      Z0mqYoUwTG/2qmDhYD/w8cQMuxz18X+wP53Opk00mOCuAJoYFTg8EAWNSBdnR5i+
+      XcmzagYMry/+wT3bCT5HGOQK2wKBgQDZDUwGIhw+DcnLpclIgMMapljzF08stlJl
+      cIDlH24gxcJt6YXZZLshRyJlYWA56I7BAGz1pbeiOLmnsW9PgNDsnEM9XBdNUyqd
+      EuKHc/q1qCQqpCrm0n4NuXRDkkQqansSHF4bR2Jh7aTGe9oFjnpjv8tFgTTDp5DC
+      8kwLf6Ht0wKBgQDGvN6WkbyqapZxm28T3tROWraFq/xrBofe4QqdqfcksJgKqc0i
+      TGJIdHmyvEJa5M0D/coc1UcL0O5KSFyj/ktk8jbJrISY4axFT91WBIOKvjQ3luZF
+      yiZGjlfshHSxai1nhqe4hI05ZTIKbIKNO97T4yZd6spViqRuL6XRIKORkwKBgHtT
+      P8/4T52+jdsFHsHwT2rz+3Rb2SOpkFWMv9/vpM5AL0HuPpwPzPeSiGucEWW1ym7F
+      BCPq/dTRcENk4L8GjS7zdo0Fp0PLLlpDIa0e6+ONXsdPsgSmsvKvXe0KzWpgR/85
+      WQsc2zyTH12bf3xKwSWuExwx1r4Ylnr92tFpuqL7AoGBAKigPtOI5n6hDs61be6O
+      5IjWPUsHzw5VMHtOq62IAKBSGLu5Nysc4jG/051xOaCFF1jWbI5TYPQ8pna+rmYr
+      deBBJMH3HKz05QAmwYf2S9iaPfw/I7Lo4LAThEaQvrE9ir6JMAoXstRQXbQNoqhR
+      otx9iihJtiN8mDOCj61Tggpj
+      -----END PRIVATE KEY-----

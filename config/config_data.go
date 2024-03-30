@@ -9,12 +9,12 @@ import (
 )
 
 type rootConfig struct {
-	Server   *serverConfig
-	IdWorker *idWorkerConfig `yaml:"id-worker"`
-	Logging  *loggingConfig
-	Trace    *traceConfig
-	Metric   *metricConfig
-	Token    *tokenConfig
+	Server    *serverConfig
+	Snowflake *snowflakeConfig
+	Logging   *loggingConfig
+	Trace     *traceConfig
+	Metric    *metricConfig
+	Secure    *secureConfig
 }
 
 func (c *rootConfig) GetServerConfig() ServerConfig {
@@ -24,11 +24,11 @@ func (c *rootConfig) GetServerConfig() ServerConfig {
 	return c.Server
 }
 
-func (c *rootConfig) GetIdWorkerConfig() IdWorkerConfig {
-	if c.IdWorker == nil {
-		c.IdWorker = &idWorkerConfig{}
+func (c *rootConfig) GetSnowflakeConfig() SnowflakeConfig {
+	if c.Snowflake == nil {
+		c.Snowflake = &snowflakeConfig{}
 	}
-	return c.IdWorker
+	return c.Snowflake
 }
 
 func (c *rootConfig) GetLoggingConfig() LoggingConfig {
@@ -52,11 +52,11 @@ func (c *rootConfig) GetMetricConfig() MetricConfig {
 	return c.Metric
 }
 
-func (c *rootConfig) GetTokenConfig() TokenConfig {
-	if c.Token == nil {
-		c.Token = &tokenConfig{}
+func (c *rootConfig) GetSecureConfig() SecureConfig {
+	if c.Secure == nil {
+		c.Secure = &secureConfig{}
 	}
-	return c.Token
+	return c.Secure
 }
 
 type serverConfig struct {
@@ -87,7 +87,7 @@ func (c *serverConfig) GetName() string {
 
 func (c *serverConfig) GetVersion() string {
 	if c.Version == nil {
-		return "0.0.0"
+		return "0.0.1"
 	} else {
 		return *c.Version
 	}
@@ -165,15 +165,15 @@ func (c *serverDBConfig) GetSource() string {
 }
 
 type serverRedisConfig struct {
-	InitAddress []string `yaml:"init-address"`
-	SelectDB    *int     `yaml:"select-db"`
+	InitAddr *string `yaml:"init-addr"`
+	SelectDB *int    `yaml:"select-db"`
 }
 
-func (c *serverRedisConfig) GetInitAddress() []string {
-	if c.InitAddress == nil {
-		return []string{"127.0.0.1:6379"}
+func (c *serverRedisConfig) GetInitAddr() string {
+	if c.InitAddr == nil {
+		return "127.0.0.1:6379"
 	} else {
-		return c.InitAddress
+		return *c.InitAddr
 	}
 }
 
@@ -186,15 +186,15 @@ func (c *serverRedisConfig) GetSelectDB() int {
 }
 
 type serverNATSConfig struct {
-	URL    *string
-	NoEcho *bool `yaml:"no-echo"`
+	SeedURL *string `yaml:"seed-url"`
+	NoEcho  *bool   `yaml:"no-echo"`
 }
 
-func (c *serverNATSConfig) GetURL() string {
-	if c.URL == nil {
+func (c *serverNATSConfig) GetSeedURL() string {
+	if c.SeedURL == nil {
 		return "nats://127.0.0.1:4222"
 	} else {
-		return *c.URL
+		return *c.SeedURL
 	}
 }
 
@@ -206,7 +206,7 @@ func (c *serverNATSConfig) GetNoEcho() bool {
 	}
 }
 
-type idWorkerConfig struct {
+type snowflakeConfig struct {
 	IdEpoch       *int64  `yaml:"id-epoch"`
 	ClusterId     *int64  `yaml:"cluster-id"`
 	WorkerId      *int64  `yaml:"worker-id"`
@@ -216,7 +216,7 @@ type idWorkerConfig struct {
 	SequenceBits  *int32  `yaml:"sequence-bits"`
 }
 
-func (c *idWorkerConfig) GetIdEpoch() int64 {
+func (c *snowflakeConfig) GetIdEpoch() int64 {
 	if c.IdEpoch == nil {
 		return int64(1640995200000) // Defaults to: 2022-01-01T00:00:00Z
 	} else {
@@ -224,7 +224,7 @@ func (c *idWorkerConfig) GetIdEpoch() int64 {
 	}
 }
 
-func (c *idWorkerConfig) GetClusterId() int64 {
+func (c *snowflakeConfig) GetClusterId() int64 {
 	if c.ClusterId == nil {
 		return 0
 	} else {
@@ -232,7 +232,7 @@ func (c *idWorkerConfig) GetClusterId() int64 {
 	}
 }
 
-func (c *idWorkerConfig) GetWorkerId() int64 {
+func (c *snowflakeConfig) GetWorkerId() int64 {
 	if c.WorkerId == nil {
 		return 0
 	} else {
@@ -240,7 +240,7 @@ func (c *idWorkerConfig) GetWorkerId() int64 {
 	}
 }
 
-func (c *idWorkerConfig) GetWorkerSeqKey() string {
+func (c *snowflakeConfig) GetWorkerSeqKey() string {
 	if c.WorkerSeqKey == nil {
 		return ""
 	} else {
@@ -248,7 +248,7 @@ func (c *idWorkerConfig) GetWorkerSeqKey() string {
 	}
 }
 
-func (c *idWorkerConfig) GetClusterIdBits() int32 {
+func (c *snowflakeConfig) GetClusterIdBits() int32 {
 	if c.ClusterIdBits == nil {
 		return 5
 	} else {
@@ -256,7 +256,7 @@ func (c *idWorkerConfig) GetClusterIdBits() int32 {
 	}
 }
 
-func (c *idWorkerConfig) GetWorkerIdBits() int32 {
+func (c *snowflakeConfig) GetWorkerIdBits() int32 {
 	if c.WorkerIdBits == nil {
 		return 5
 	} else {
@@ -264,7 +264,7 @@ func (c *idWorkerConfig) GetWorkerIdBits() int32 {
 	}
 }
 
-func (c *idWorkerConfig) GetSequenceBits() int32 {
+func (c *snowflakeConfig) GetSequenceBits() int32 {
 	if c.SequenceBits == nil {
 		return 12
 	} else {
@@ -409,7 +409,18 @@ func (c *metricExporterConfig) GetInsecure() bool {
 	}
 }
 
-type tokenConfig struct {
+type secureConfig struct {
+	Token *secureTokenConfig
+}
+
+func (c *secureConfig) GetToken() SecureTokenConfig {
+	if c.Token == nil {
+		c.Token = &secureTokenConfig{}
+	}
+	return c.Token
+}
+
+type secureTokenConfig struct {
 	Store           *string
 	Bucket          *string
 	AccessTokenTTL  *time.Duration `yaml:"access-token-ttl"`
@@ -423,7 +434,7 @@ type tokenConfig struct {
 	PrivateKeyValue *string `yaml:"private-key-value"`
 }
 
-func (c *tokenConfig) GetStore() string {
+func (c *secureTokenConfig) GetStore() string {
 	if c.Store == nil {
 		return "redis"
 	} else {
@@ -431,7 +442,7 @@ func (c *tokenConfig) GetStore() string {
 	}
 }
 
-func (c *tokenConfig) GetBucket() string {
+func (c *secureTokenConfig) GetBucket() string {
 	if c.Bucket == nil {
 		return "tokens"
 	} else {
@@ -439,7 +450,7 @@ func (c *tokenConfig) GetBucket() string {
 	}
 }
 
-func (c *tokenConfig) GetAccessTokenTTL() time.Duration {
+func (c *secureTokenConfig) GetAccessTokenTTL() time.Duration {
 	if c.AccessTokenTTL == nil {
 		return 2 * 24 * time.Hour // default to 2 days
 	} else {
@@ -447,7 +458,7 @@ func (c *tokenConfig) GetAccessTokenTTL() time.Duration {
 	}
 }
 
-func (c *tokenConfig) GetRefreshTokenTTL() time.Duration {
+func (c *secureTokenConfig) GetRefreshTokenTTL() time.Duration {
 	if c.RefreshTokenTTL == nil {
 		return 7 * 24 * time.Hour // default to 7 days
 	} else {
@@ -455,7 +466,7 @@ func (c *tokenConfig) GetRefreshTokenTTL() time.Duration {
 	}
 }
 
-func (c *tokenConfig) GetIssuer() string {
+func (c *secureTokenConfig) GetIssuer() string {
 	if c.Issuer == nil {
 		return "unnamed-issuer"
 	} else {
@@ -463,7 +474,7 @@ func (c *tokenConfig) GetIssuer() string {
 	}
 }
 
-func (c *tokenConfig) GetAudience() string {
+func (c *secureTokenConfig) GetAudience() string {
 	if c.Audience == nil {
 		return "unnamed-audience"
 	} else {
@@ -471,7 +482,7 @@ func (c *tokenConfig) GetAudience() string {
 	}
 }
 
-func (c *tokenConfig) GetSigningMethod() string {
+func (c *secureTokenConfig) GetSigningMethod() string {
 	if c.SigningMethod == nil {
 		return "RS256"
 	} else {
@@ -479,7 +490,7 @@ func (c *tokenConfig) GetSigningMethod() string {
 	}
 }
 
-func (c *tokenConfig) GetPublicKey() []byte {
+func (c *secureTokenConfig) GetPublicKey() []byte {
 	if c.PublicKeyValue != nil {
 		return []byte(*c.PublicKeyValue)
 	}
@@ -493,7 +504,7 @@ func (c *tokenConfig) GetPublicKey() []byte {
 	return nil
 }
 
-func (c *tokenConfig) GetPrivateKey() []byte {
+func (c *secureTokenConfig) GetPrivateKey() []byte {
 	if c.PrivateKeyValue != nil {
 		return []byte(*c.PrivateKeyValue)
 	}

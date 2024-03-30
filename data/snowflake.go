@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	DEFAULT_ID_EPOCH = int64(1640995200000) // Defaults to: 2022-01-01T00:00:00Z
+	DEFAULT_ID_EPOCH = int64(1704067200000) // Defaults to: 2024-01-01T00:00:00Z
 )
 
 var (
@@ -110,7 +110,7 @@ func (w *idWorker) NextHex() string {
 
 // NewIdWorker creates a new IdWorker instance with the given config.
 // If the workerSeqKey is not empty, the workerId will be generated from the Seq.
-func NewIdWorker(cfg config.IdWorkerConfig, seq Seq) (IdWorker, error) {
+func NewIdWorker(cfg config.SnowflakeConfig, seq Seq) (IdWorker, error) {
 	idEpoch := cfg.GetIdEpoch()
 	clusterId := cfg.GetClusterId()
 	workerId := cfg.GetWorkerId()
