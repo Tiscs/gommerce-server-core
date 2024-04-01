@@ -137,7 +137,7 @@ type serverHTTPConfig struct {
 
 func (c *serverHTTPConfig) GetAddr() string {
 	if c.Addr == nil {
-		return ":50050"
+		return ":5050"
 	} else {
 		return *c.Addr
 	}

@@ -4,7 +4,7 @@ server:
   name: gommerce-server-core
   version: 1.0.0
   http:
-    addr: :50050
+    addr: :5050
   db:
     driver: pg
     source: postgres://username:password@127.0.0.1:5432/dbname?sslmode=disable # https://bun.uptrace.dev/postgres/#pgdriver

@@ -7,10 +7,10 @@ import (
 )
 
 // LoadYamlConfig loads RootConfig from file.
-// The path of the file is specified by environment variable GSCC_CONFIG_PATH,
+// The path of the file is specified by environment variable GOMMERCE_CONFIG_PATH,
 // If the environment variable is not set, it defaults to "./config/app-deploy.yaml".
 func LoadYamlConfig() (RootConfig, error) {
-	path, ok := os.LookupEnv("GSCC_CONFIG_PATH")
+	path, ok := os.LookupEnv("GOMMERCE_CONFIG_PATH")
 	if !ok {
 		path = "./config/app-deploy.yaml"
 	}
