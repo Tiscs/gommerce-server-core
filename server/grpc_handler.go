@@ -104,8 +104,8 @@ func NewGRPCHandler(cfg config.ServerHTTPConfig, opts ...GRPCHandlerOption) (*GR
 		srv(grpcServer)
 	}
 
-	for _, cli := range h.gtwClients {
-		if err := cli(ctx, gatewayMux, conn); err != nil {
+	for _, crf := range h.gtwClients {
+		if err := crf(ctx, gatewayMux, conn); err != nil {
 			return nil, err
 		}
 	}
@@ -166,6 +166,23 @@ func WithStaticFileHandler(pattern string, sfs fs.FS) GRPCHandlerOption {
 			})
 			if err != nil {
 				panic(err)
+			}
+		})
+		return nil
+	}
+}
+
+// WithServeMuxRoutes returns a GRPCHandlerOption that adds routes to grpc gateway.
+func WithServeMuxRoutes(routes ...ServerMuxRoute) GRPCHandlerOption {
+	return func(h *GRPCHandler) error {
+		h.gtwOptions = append(h.gtwOptions, func(mux *runtime.ServeMux) {
+			for _, route := range routes {
+				for _, method := range route.Methods {
+					err := mux.HandlePath(method, route.Pattern, route.Handler)
+					if err != nil {
+						panic(err)
+					}
+				}
 			}
 		})
 		return nil

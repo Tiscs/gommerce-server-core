@@ -66,6 +66,7 @@ type serverConfig struct {
 	HTTP    *serverHTTPConfig
 	DB      *serverDBConfig
 	Redis   *serverRedisConfig
+	MinIO   *serverMinIOConfig
 	NATS    *serverNATSConfig
 }
 
@@ -122,6 +123,13 @@ func (c *serverConfig) GetRedisConfig() ServerRedisConfig {
 		c.Redis = &serverRedisConfig{}
 	}
 	return c.Redis
+}
+
+func (c *serverConfig) GetMinIOConfig() ServerMinIOConfig {
+	if c.MinIO == nil {
+		c.MinIO = &serverMinIOConfig{}
+	}
+	return c.MinIO
 }
 
 func (c *serverConfig) GetNATSConfig() ServerNATSConfig {
@@ -182,6 +190,45 @@ func (c *serverRedisConfig) GetSelectDB() int {
 		return 0
 	} else {
 		return *c.SelectDB
+	}
+}
+
+type serverMinIOConfig struct {
+	Endpoint  *string
+	AccessKey *string `yaml:"access-key"`
+	SecretKey *string `yaml:"secret-key"`
+	UseSSL    *bool   `yaml:"use-ssl"`
+}
+
+func (c *serverMinIOConfig) GetEndpoint() string {
+	if c.Endpoint == nil {
+		panic("MinIO endpoint is not set")
+	} else {
+		return *c.Endpoint
+	}
+}
+
+func (c *serverMinIOConfig) GetAccessKey() string {
+	if c.AccessKey == nil {
+		return ""
+	} else {
+		return *c.AccessKey
+	}
+}
+
+func (c *serverMinIOConfig) GetSecretKey() string {
+	if c.SecretKey == nil {
+		return ""
+	} else {
+		return *c.SecretKey
+	}
+}
+
+func (c *serverMinIOConfig) GetUseSSL() bool {
+	if c.UseSSL == nil {
+		return true
+	} else {
+		return *c.UseSSL
 	}
 }
 

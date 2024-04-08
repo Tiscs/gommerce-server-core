@@ -14,6 +14,7 @@ type extractSectionsResult struct {
 	ServerHTTPConfig  ServerHTTPConfig
 	ServerDBConfig    ServerDBConfig
 	ServerRedisConfig ServerRedisConfig
+	ServerMinIOConfig ServerMinIOConfig
 	ServerNATSConfig  ServerNATSConfig
 	SnowflakeConfig   SnowflakeConfig
 	LoggingConfig     LoggingConfig
@@ -31,6 +32,7 @@ func ExtractSections(cfg RootConfig) extractSectionsResult {
 		ServerHTTPConfig:  cfg.GetServerConfig().GetHTTPConfig(),
 		ServerDBConfig:    cfg.GetServerConfig().GetDBConfig(),
 		ServerRedisConfig: cfg.GetServerConfig().GetRedisConfig(),
+		ServerMinIOConfig: cfg.GetServerConfig().GetMinIOConfig(),
 		ServerNATSConfig:  cfg.GetServerConfig().GetNATSConfig(),
 		SnowflakeConfig:   cfg.GetSnowflakeConfig(),
 		LoggingConfig:     cfg.GetLoggingConfig(),
@@ -59,6 +61,7 @@ type ServerConfig interface {
 	GetHTTPConfig() ServerHTTPConfig
 	GetDBConfig() ServerDBConfig
 	GetRedisConfig() ServerRedisConfig
+	GetMinIOConfig() ServerMinIOConfig
 	GetNATSConfig() ServerNATSConfig
 }
 
@@ -74,6 +77,13 @@ type ServerDBConfig interface {
 type ServerRedisConfig interface {
 	GetInitAddr() string
 	GetSelectDB() int
+}
+
+type ServerMinIOConfig interface {
+	GetEndpoint() string
+	GetAccessKey() string
+	GetSecretKey() string
+	GetUseSSL() bool
 }
 
 type ServerNATSConfig interface {

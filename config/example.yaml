@@ -11,6 +11,11 @@ server:
   redis:
     init-addr: 127.0.0.1:6379
     select-db: 0
+  minio:
+    endpoint: 127.0.0.1:9000
+    access-key: TL6JVVW85A9L4MFI4985
+    secret-key: ILnRAe8cuEJUmbCxTAPOodM3Rhu5gvD4ulZJskEL
+    use-ssl: true
   nats:
     seed-url: nats://user:pass@127.0.0.1:4222
     no-echo: false
