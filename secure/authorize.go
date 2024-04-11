@@ -31,7 +31,9 @@ func Authorize(ctx context.Context, auth ...AuthFunc) error {
 // AuthFuncExpiression returns an AuthFunc that evaluates the given expression.
 // The expression must return a boolean.
 // The expression is evaluated with the identity as the context.
-// example: AuthFuncExpiression(`Token().Realm() == "default"`)
+// Example:
+//
+//	AuthFuncExpiression(`Token().Realm() == "default"`)
 func AuthFuncExpiression(script string) AuthFunc {
 	program, err := expr.Compile(script, expr.Env(&Identity{}))
 	if err != nil {
