@@ -2,10 +2,25 @@ package logging
 
 import (
 	"context"
+	"io"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
+
+func errorToCode(err error) codes.Code {
+	switch err {
+	case context.DeadlineExceeded:
+		return codes.DeadlineExceeded
+	case context.Canceled:
+		return codes.Canceled
+	case io.ErrUnexpectedEOF:
+		return codes.Internal
+	}
+	return status.Code(err)
+}
 
 // GRPCLogger provides a grpc middleware that logs grpc calls.
 type GRPCLogger struct {
@@ -19,6 +34,7 @@ func NewGRPCLogger(logger Logger) *GRPCLogger {
 		logger: logger,
 		opts: []logging.Option{
 			logging.WithLogOnEvents(logging.StartCall, logging.FinishCall), // logging.PayloadReceived, logging.PayloadSent
+			logging.WithCodes(errorToCode),
 		},
 	}
 }
