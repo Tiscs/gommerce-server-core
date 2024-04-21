@@ -5,6 +5,25 @@ server:
   version: 1.0.0
   http:
     addr: :5050
+    cors:
+      allowed-origins:
+        - "*"
+      allowed-methods:
+        - HEAD
+        - GET
+        - POST
+      allowed-headers:
+        - Authorization
+        - Content-Type
+        - Content-Length
+      exposed-headers:
+        - Content-Length
+        - Content-Type
+      max-age: 5
+      allow-credentials: false
+      allow-private-network: false
+      options-passthrough: false
+      options-success-status: 204
   db:
     driver: pg
     source: postgres://username:password@127.0.0.1:5432/dbname?sslmode=disable # https://bun.uptrace.dev/postgres/#pgdriver

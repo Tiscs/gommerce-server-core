@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/rs/cors"
 )
 
 type rootConfig struct {
@@ -141,6 +142,7 @@ func (c *serverConfig) GetNATSConfig() ServerNATSConfig {
 
 type serverHTTPConfig struct {
 	Addr *string
+	Cors *serverHTTPCorsConfig
 }
 
 func (c *serverHTTPConfig) GetAddr() string {
@@ -149,6 +151,75 @@ func (c *serverHTTPConfig) GetAddr() string {
 	} else {
 		return *c.Addr
 	}
+}
+
+func (c *serverHTTPConfig) GetCors() cors.Options {
+	return c.Cors.corsOptions()
+}
+
+type serverHTTPCorsConfig struct {
+	AllowedOrigins       *[]string `yaml:"allowed-origins"`
+	AllowedMethods       *[]string `yaml:"allowed-methods"`
+	AllowedHeaders       *[]string `yaml:"allowed-headers"`
+	ExposedHeaders       *[]string `yaml:"exposed-headers"`
+	MaxAge               *int      `yaml:"max-age"`
+	AllowCredentials     *bool     `yaml:"allow-credentials"`
+	AllowPrivateNetwork  *bool     `yaml:"allow-private-network"`
+	OptionsPassthrough   *bool     `yaml:"options-passthrough"`
+	OptionsSuccessStatus *int      `yaml:"options-success-status"`
+}
+
+func (c *serverHTTPCorsConfig) corsOptions() cors.Options {
+	opts := cors.Options{
+		AllowedOrigins:       []string{"*"},
+		AllowedMethods:       []string{"HEAD", "GET", "POST"},
+		AllowedHeaders:       []string{"Authorization", "Content-Type", "Content-Length"},
+		ExposedHeaders:       []string{"Content-Type", "Content-Length"},
+		MaxAge:               5,
+		AllowCredentials:     false,
+		AllowPrivateNetwork:  false,
+		OptionsPassthrough:   false,
+		OptionsSuccessStatus: 204,
+	}
+	if c == nil {
+		return opts
+	}
+	if c.AllowedOrigins != nil {
+		opts.AllowedOrigins = *c.AllowedOrigins
+	}
+	if c.AllowedMethods != nil {
+		opts.AllowedMethods = *c.AllowedMethods
+	}
+	if c.AllowedHeaders != nil {
+		opts.AllowedHeaders = *c.AllowedHeaders
+	}
+	if c.ExposedHeaders != nil {
+		opts.ExposedHeaders = *c.ExposedHeaders
+	}
+	if c.MaxAge != nil {
+		opts.MaxAge = *c.MaxAge
+		if opts.MaxAge == 0 {
+			opts.MaxAge = 5
+		} else if opts.MaxAge == -1 {
+			opts.MaxAge = 0
+		}
+	}
+	if c.AllowCredentials != nil {
+		opts.AllowCredentials = *c.AllowCredentials
+	}
+	if c.AllowPrivateNetwork != nil {
+		opts.AllowPrivateNetwork = *c.AllowPrivateNetwork
+	}
+	if c.OptionsPassthrough != nil {
+		opts.OptionsPassthrough = *c.OptionsPassthrough
+	}
+	if c.OptionsSuccessStatus != nil {
+		opts.OptionsSuccessStatus = *c.OptionsSuccessStatus
+		if opts.OptionsSuccessStatus == 0 {
+			opts.OptionsSuccessStatus = 204
+		}
+	}
+	return opts
 }
 
 type serverDBConfig struct {

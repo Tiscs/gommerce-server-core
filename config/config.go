@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/rs/cors"
 	"go.uber.org/fx"
 )
 
@@ -67,6 +68,7 @@ type ServerConfig interface {
 
 type ServerHTTPConfig interface {
 	GetAddr() string
+	GetCors() cors.Options
 }
 
 type ServerDBConfig interface {

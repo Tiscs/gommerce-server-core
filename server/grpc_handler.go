@@ -57,7 +57,8 @@ type GRPCHandler struct {
 	srvServers []ServerServiceRegisterFunc // grpc server services
 	gtwClients []GatewayClientRegisterFunc // grpc gateway clients
 
-	useHealthz bool // whether to use healthz endpoint
+	useHealthz bool         // whether to use healthz endpoint
+	rsCorsOpts cors.Options // cors options
 }
 
 // GRPCHandlerOption is an option for GRPCHandler, used to configure it.
@@ -111,7 +112,7 @@ func NewGRPCHandler(cfg config.ServerHTTPConfig, opts ...GRPCHandlerOption) (*GR
 	}
 
 	reflection.Register(grpcServer)
-	gtwHandler := cors.Default().Handler(gatewayMux)
+	gtwHandler := cors.New(h.rsCorsOpts).Handler(gatewayMux)
 
 	h.h2cHandler = h2c.NewHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.ProtoMajor == 2 && strings.HasPrefix(r.Header.Get("Content-Type"), "application/grpc") {
@@ -127,6 +128,13 @@ func NewGRPCHandler(cfg config.ServerHTTPConfig, opts ...GRPCHandlerOption) (*GR
 // ServeHTTP implements http.Handler.
 func (h *GRPCHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.h2cHandler.ServeHTTP(w, r)
+}
+
+func WithCorsOptions(opts cors.Options) GRPCHandlerOption {
+	return func(h *GRPCHandler) error {
+		h.rsCorsOpts = opts
+		return nil
+	}
 }
 
 // WithOTELStatsHandler returns a GRPCHandlerOption that use an opentelemetry stats handler for grpc server.
