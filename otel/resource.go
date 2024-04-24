@@ -5,7 +5,7 @@ import (
 
 	"github.com/choral-io/gommerce-server-core/config"
 	"go.opentelemetry.io/otel/sdk/resource"
-	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.25.0"
 )
 
 // NewServerResource creates a new resource with the given config.
