@@ -18,7 +18,7 @@ require (
 	github.com/uptrace/bun/dialect/mysqldialect v1.2.1
 	github.com/uptrace/bun/dialect/pgdialect v1.2.1
 	github.com/uptrace/bun/extra/bunotel v1.2.1
-	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.50.0
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.51.0
 	go.opentelemetry.io/otel v1.26.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.26.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v1.26.0
@@ -34,7 +34,7 @@ require (
 	go.uber.org/multierr v1.11.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.24.0
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240415180920-8c6c420018be
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240429193739-8cf5692501f6
 	google.golang.org/grpc v1.63.2
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -58,6 +58,6 @@ require (
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240415180920-8c6c420018be // indirect
-	google.golang.org/protobuf v1.33.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240429193739-8cf5692501f6 // indirect
+	google.golang.org/protobuf v1.34.0 // indirect
 )
