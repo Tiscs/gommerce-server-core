@@ -20,13 +20,11 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-type pagetoken interface {
+// WithPaging is a bun.SelectQuery modifier that adds paging to the query.
+func WithPaging(p interface {
 	GetPage() int32
 	GetSize() int32
-}
-
-// WithPaging is a bun.SelectQuery modifier that adds paging to the query.
-func WithPaging(p pagetoken) func(*bun.SelectQuery) *bun.SelectQuery {
+}) func(*bun.SelectQuery) *bun.SelectQuery {
 	var size = 10
 	if p.GetSize() > 0 {
 		size = int(p.GetSize())
