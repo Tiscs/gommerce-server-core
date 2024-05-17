@@ -84,7 +84,7 @@ func NewGRPCHandler(cfg config.ServerHTTPConfig, opts ...GRPCHandlerOption) (*GR
 
 	ctx := context.Background()
 
-	conn, err := grpc.DialContext(ctx, cfg.GetAddr(), h.gcdOptions...)
+	conn, err := grpc.NewClient(cfg.GetAddr(), h.gcdOptions...)
 	if err != nil {
 		return nil, err
 	}
@@ -130,6 +130,7 @@ func (h *GRPCHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.h2cHandler.ServeHTTP(w, r)
 }
 
+// WithCorsOptions returns a GRPCHandlerOption that sets cors options for grpc gateway.
 func WithCorsOptions(opts cors.Options) GRPCHandlerOption {
 	return func(h *GRPCHandler) error {
 		h.rsCorsOpts = opts
