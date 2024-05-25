@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	lua_issue = rueidis.NewLuaScript(`
+	luaIssue = rueidis.NewLuaScript(`
         local keys = redis.call('keys', ARGV[1])
         for _, key in ipairs(keys) do
           redis.call('del', key)
@@ -62,8 +62,8 @@ func (s *RedisTokenStore) issue(token *Token, ttl time.Duration) (string, error)
 	}
 	key := fmt.Sprintf("%s:%s", s.bkt, token.id)
 	var rr rueidis.RedisResult
-	if token.ttype == TOKEN_TYPE_BEARER {
-		rr = lua_issue.Exec(s.ctx, s.rdb, []string{
+	if token.ttype == TokenTypeBearer {
+		rr = luaIssue.Exec(s.ctx, s.rdb, []string{
 			key, // KEY[1]: token key
 		}, []string{
 			fmt.Sprintf("%s:%s:*", s.bkt, token.subject), // ARGV[1]: search pattern

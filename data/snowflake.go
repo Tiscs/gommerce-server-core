@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	DEFAULT_ID_EPOCH = int64(1704067200000) // Defaults to: 2024-01-01T00:00:00Z
+	DefaultIdEpoch = int64(1704067200000) // Defaults to: 2024-01-01T00:00:00Z
 )
 
 var (
@@ -29,7 +29,7 @@ var (
 
 func init() {
 	var idw IdWorker = &idWorker{
-		idEpoch:       DEFAULT_ID_EPOCH,
+		idEpoch:       DefaultIdEpoch,
 		clusterId:     0,
 		workerId:      0,
 		clusterIdBits: 5,
@@ -123,9 +123,7 @@ func NewIdWorker(cfg config.SnowflakeConfig, seq Seq) (IdWorker, error) {
 		if seq == nil {
 			return nil, errors.New("redis client is not initialized")
 		}
-		min := int64(0)
-		max := int64(1)<<cfg.GetWorkerIdBits() - 1
-		if v, err := seq.Next(workerSeqKey, min, max); err != nil {
+		if v, err := seq.Next(workerSeqKey, int64(0), int64(1)<<cfg.GetWorkerIdBits()-1); err != nil {
 			return nil, err
 		} else {
 			workerId = v

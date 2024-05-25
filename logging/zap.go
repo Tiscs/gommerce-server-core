@@ -36,7 +36,7 @@ func NewZapLogger(preset string) (*ZapLogger, error) {
 }
 
 func argsToFields(args []any) []zap.Field {
-	fields := []zap.Field{}
+	var fields []zap.Field
 	for len(args) > 0 {
 		switch x := args[0].(type) {
 		case string:

@@ -8,7 +8,7 @@ import (
 	"go.uber.org/fx"
 )
 
-type extractSectionsResult struct {
+type ExtractSectionsResult struct {
 	fx.Out
 
 	ServerConfig      ServerConfig
@@ -27,8 +27,8 @@ type extractSectionsResult struct {
 
 // ExtractSections extracts sections from RootConfig.
 // It is used for dependency injection.
-func ExtractSections(cfg RootConfig) extractSectionsResult {
-	result := extractSectionsResult{
+func ExtractSections(cfg RootConfig) ExtractSectionsResult {
+	result := ExtractSectionsResult{
 		ServerConfig:      cfg.GetServerConfig(),
 		ServerHTTPConfig:  cfg.GetServerConfig().GetHTTPConfig(),
 		ServerDBConfig:    cfg.GetServerConfig().GetDBConfig(),

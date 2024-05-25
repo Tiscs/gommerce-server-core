@@ -53,7 +53,7 @@ func (auth *ServerAuthorizer) resolveIdentity(ahv string) (*Identity, error) {
 // UnaryServerInterceptor returns a grpc.UnaryServerInterceptor that authorizes the identity in the context.
 func (auth *ServerAuthorizer) UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-		if user, err := auth.resolveIdentity(metadata.ExtractIncoming(ctx).Get(AUTH_HEADER_KEY)); err != nil {
+		if user, err := auth.resolveIdentity(metadata.ExtractIncoming(ctx).Get(AuthHeaderKey)); err != nil {
 			return nil, err
 		} else if user != nil {
 			ctx = context.WithValue(ctx, identityKey{}, user)
@@ -70,7 +70,7 @@ func (auth *ServerAuthorizer) UnaryServerInterceptor() grpc.UnaryServerIntercept
 // StreamServerInterceptor returns a grpc.StreamServerInterceptor that authorizes the identity in the context.
 func (auth *ServerAuthorizer) StreamServerInterceptor() grpc.StreamServerInterceptor {
 	return func(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-		if user, err := auth.resolveIdentity(metadata.ExtractIncoming(ss.Context()).Get(AUTH_HEADER_KEY)); err != nil {
+		if user, err := auth.resolveIdentity(metadata.ExtractIncoming(ss.Context()).Get(AuthHeaderKey)); err != nil {
 			return err
 		} else if user != nil {
 			ss = &middleware.WrappedServerStream{ServerStream: ss, WrappedContext: context.WithValue(ss.Context(), identityKey{}, user)}

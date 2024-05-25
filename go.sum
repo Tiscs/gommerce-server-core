@@ -61,8 +61,8 @@ github.com/uptrace/bun/dialect/pgdialect v1.2.1 h1:ceP99r03u+s8ylaDE/RzgcajwGiC7
 github.com/uptrace/bun/dialect/pgdialect v1.2.1/go.mod h1:mv6B12cisvSc6bwKm9q9wcrr26awkZK8QXM+nso9n2U=
 github.com/uptrace/bun/extra/bunotel v1.2.1 h1:5oTy3Jh7Q1bhCd5vnPszBmJgYouw+PuuZ8iSCm+uNCQ=
 github.com/uptrace/bun/extra/bunotel v1.2.1/go.mod h1:SWW3HyjiXPYM36q0QSpdtTP8v21nWHnTCxu4lYkpO90=
-github.com/uptrace/opentelemetry-go-extra/otelsql v0.2.4 h1:x3omFAG2XkvWFg1hvXRinY2ExAL1Aacl7W9ZlYjo6gc=
-github.com/uptrace/opentelemetry-go-extra/otelsql v0.2.4/go.mod h1:qMKJr5fTnY0p7hqCQMNrAk62bCARWR5rAbTrGUFRuh4=
+github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.0 h1:Icg/YRReJBQVUFfr+eH+Ze/ZzPxx4GPC1ICALMKCNGU=
+github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.0/go.mod h1:ZKgZNsGk5Y+uOxRHcYb4MKLVpmKYU4/u7BUtbStJm7w=
 github.com/vmihailenco/msgpack/v5 v5.4.1 h1:cQriyiUvjTwOHg8QZaPihLWeRAAVoCpE00IUPn0Bjt8=
 github.com/vmihailenco/msgpack/v5 v5.4.1/go.mod h1:GaZTsDaehaPpQVyxrf5mtQlH+pc21PIudVV/E3rRQok=
 github.com/vmihailenco/tagparser/v2 v2.0.0 h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAhO7/IwNM9g=

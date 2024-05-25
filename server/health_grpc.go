@@ -52,17 +52,17 @@ func (s *healthServiceServer) check(ctx context.Context, _ *health.HealthCheckRe
 
 // Check implements health.HealthServer.
 // It checks the health of the server, and returns NOT_SERVING if the server is not healthy.
-func (h *healthServiceServer) Check(ctx context.Context, req *health.HealthCheckRequest) (*health.HealthCheckResponse, error) {
+func (s *healthServiceServer) Check(ctx context.Context, req *health.HealthCheckRequest) (*health.HealthCheckResponse, error) {
 	status := health.HealthCheckResponse_NOT_SERVING
-	if h.check(ctx, req) == nil {
+	if s.check(ctx, req) == nil {
 		status = health.HealthCheckResponse_SERVING
 	}
 	return &health.HealthCheckResponse{Status: status}, nil
 }
 
-func (h *healthServiceServer) reply(req *health.HealthCheckRequest, srv health.Health_WatchServer) error {
+func (s *healthServiceServer) reply(req *health.HealthCheckRequest, srv health.Health_WatchServer) error {
 	status := health.HealthCheckResponse_NOT_SERVING
-	if h.check(srv.Context(), req) == nil {
+	if s.check(srv.Context(), req) == nil {
 		status = health.HealthCheckResponse_SERVING
 	}
 	if err := srv.Send(&health.HealthCheckResponse{Status: status}); err != nil {
@@ -75,8 +75,8 @@ func (h *healthServiceServer) reply(req *health.HealthCheckRequest, srv health.H
 // Watch implements health.HealthServer.
 // It checks the health of the server, and returns NOT_SERVING if the server is not healthy.
 // It also sends a health check response every 30 seconds.
-func (h *healthServiceServer) Watch(req *health.HealthCheckRequest, srv health.Health_WatchServer) error {
-	if err := h.reply(req, srv); err != nil {
+func (s *healthServiceServer) Watch(req *health.HealthCheckRequest, srv health.Health_WatchServer) error {
+	if err := s.reply(req, srv); err != nil {
 		return err
 	}
 	ticker := time.NewTicker(30 * time.Second)
@@ -84,16 +84,11 @@ func (h *healthServiceServer) Watch(req *health.HealthCheckRequest, srv health.H
 	for {
 		select {
 		case <-ticker.C:
-			if err := h.reply(req, srv); err != nil {
+			if err := s.reply(req, srv); err != nil {
 				return err
 			}
 		case <-srv.Context().Done():
-			if err := srv.Context().Err(); err == context.Canceled {
-				slog.InfoContext(srv.Context(), "client has canceled the request")
-				return nil
-			} else {
-				return err
-			}
+			return srv.Context().Err()
 		}
 	}
 }

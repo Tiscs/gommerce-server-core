@@ -42,7 +42,7 @@ type globalQueryHook struct {
 	logger logging.Logger
 }
 
-func (h *globalQueryHook) BeforeQuery(ctx context.Context, event *bun.QueryEvent) context.Context {
+func (h *globalQueryHook) BeforeQuery(ctx context.Context, _ *bun.QueryEvent) context.Context {
 	return ctx
 }
 

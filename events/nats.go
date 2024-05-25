@@ -6,7 +6,7 @@ import (
 )
 
 func NewNATSConn(cfg config.ServerNATSConfig) (*nats.Conn, error) {
-	opts := []nats.Option{}
+	var opts []nats.Option
 	if cfg.GetNoEcho() {
 		opts = append(opts, nats.NoEcho())
 	}

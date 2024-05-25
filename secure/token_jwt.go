@@ -135,10 +135,10 @@ func (s *JsonWebTokenStore) Renew(value string, ttl time.Duration) (string, erro
 	// casting the token claims to the extended claims type
 	// panic if the claims are not of the extended claims type
 	claims := token.Claims.(*ExtendedClaims)
-	if !strings.EqualFold(claims.Type, TOKEN_TYPE_REFRESH) {
+	if !strings.EqualFold(claims.Type, TokenTypeRefresh) {
 		return "", ErrInvalidTokenType
 	}
-	return s.Issue(NewToken(TOKEN_TYPE_BEARER, claims.Realm, claims.Client, claims.Subject, strings.Split(claims.Scope, " ")), ttl)
+	return s.Issue(NewToken(TokenTypeBearer, claims.Realm, claims.Client, claims.Subject, strings.Split(claims.Scope, " ")), ttl)
 }
 
 func (s *JsonWebTokenStore) Verify(value string) (*Token, error) {
@@ -150,7 +150,7 @@ func (s *JsonWebTokenStore) Verify(value string) (*Token, error) {
 	// casting the token claims to the extended claims type
 	// panic if the claims are not of the extended claims type
 	claims := token.Claims.(*ExtendedClaims)
-	if !strings.EqualFold(claims.Type, TOKEN_TYPE_BEARER) {
+	if !strings.EqualFold(claims.Type, TokenTypeBearer) {
 		return nil, ErrInvalidTokenType
 	}
 	return &Token{

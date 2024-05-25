@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	TOKEN_TYPE_BEARER  = "Bearer"
-	TOKEN_TYPE_REFRESH = "Refresh"
+	TokenTypeBearer  = "Bearer"
+	TokenTypeRefresh = "Refresh"
 )
 
 // Token is used to authenticate a user.

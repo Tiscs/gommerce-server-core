@@ -10,9 +10,9 @@ import (
 )
 
 const (
-	AUTH_HEADER_KEY    = "Authorization"
-	AUTH_SCHEMA_BASIC  = "basic"
-	AUTH_SCHEMA_BEARER = "bearer"
+	AuthHeaderKey    = "Authorization"
+	AuthSchemaBasic  = "basic"
+	AuthSchemaBearer = "bearer"
 )
 
 // NewTokenStore returns a new TokenStore with the given config.

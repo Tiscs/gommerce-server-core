@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"net"
 	"net/http"
 
@@ -34,7 +35,7 @@ func (s *HTTPServer) Start(ctx context.Context) error {
 	}
 	go func() {
 		s.logger.Info(ctx, "serving http", "addr", s.server.Addr)
-		if err := s.server.Serve(ln); err != nil && err != http.ErrServerClosed {
+		if err := s.server.Serve(ln); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			s.logger.Error(ctx, "error while serving http", "error", err)
 			s.chDone <- err
 		}

@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	DEFAULT_PASSWORD_SYMBOLS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+,.?/:;{}[]`~"
+	DefaultPasswordSymbols = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+,.?/:;{}[]`~"
 )
 
 // RandString randomly generates l length string from the given symbols.
