@@ -3,7 +3,7 @@ module github.com/choral-io/gommerce-server-core
 go 1.22.0
 
 require (
-	github.com/expr-lang/expr v1.16.7
+	github.com/expr-lang/expr v1.16.8
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
