@@ -3,7 +3,7 @@ module github.com/choral-io/gommerce-server-core
 go 1.22.0
 
 require (
-	github.com/expr-lang/expr v1.16.8
+	github.com/expr-lang/expr v1.16.9
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
@@ -33,7 +33,7 @@ require (
 	go.uber.org/fx v1.21.1
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.25.0
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240521202816-d264139d666e
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157
 	google.golang.org/grpc v1.64.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -58,6 +58,6 @@ require (
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240521202816-d264139d666e // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240528184218-531527333157 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 )
