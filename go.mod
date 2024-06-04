@@ -9,8 +9,8 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0
 	github.com/nats-io/nats.go v1.35.0
-	github.com/redis/rueidis v1.0.37
-	github.com/redis/rueidis/rueidisotel v1.0.37
+	github.com/redis/rueidis v1.0.38
+	github.com/redis/rueidis/rueidisotel v1.0.38
 	github.com/rs/cors v1.11.0
 	github.com/shopspring/decimal v1.4.0
 	github.com/uptrace/bun v1.2.1
@@ -30,7 +30,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.27.0
 	go.opentelemetry.io/otel/sdk/metric v1.27.0
 	go.opentelemetry.io/otel/trace v1.27.0
-	go.uber.org/fx v1.21.1
+	go.uber.org/fx v1.22.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.25.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157
@@ -55,9 +55,9 @@ require (
 	go.uber.org/dig v1.17.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
-	golang.org/x/mod v0.17.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
-	golang.org/x/text v0.15.0 // indirect
+	golang.org/x/mod v0.18.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240528184218-531527333157 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 )
