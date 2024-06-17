@@ -8,9 +8,9 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0
-	github.com/nats-io/nats.go v1.35.0
-	github.com/redis/rueidis v1.0.38
-	github.com/redis/rueidis/rueidisotel v1.0.38
+	github.com/nats-io/nats.go v1.36.0
+	github.com/redis/rueidis v1.0.39
+	github.com/redis/rueidis/rueidisotel v1.0.39
 	github.com/rs/cors v1.11.0
 	github.com/shopspring/decimal v1.4.0
 	github.com/uptrace/bun v1.2.1
@@ -43,11 +43,11 @@ require (
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/klauspost/compress v1.17.8 // indirect
+	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
-	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.0 // indirect
+	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.1 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.27.0 // indirect
