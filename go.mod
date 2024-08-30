@@ -9,15 +9,15 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0
 	github.com/nats-io/nats.go v1.37.0
-	github.com/redis/rueidis v1.0.44
-	github.com/redis/rueidis/rueidisotel v1.0.44
-	github.com/rs/cors v1.11.0
+	github.com/redis/rueidis v1.0.45
+	github.com/redis/rueidis/rueidisotel v1.0.45
+	github.com/rs/cors v1.11.1
 	github.com/shopspring/decimal v1.4.0
-	github.com/uptrace/bun v1.2.1
-	github.com/uptrace/bun/dialect/mssqldialect v1.2.1
-	github.com/uptrace/bun/dialect/mysqldialect v1.2.1
-	github.com/uptrace/bun/dialect/pgdialect v1.2.1
-	github.com/uptrace/bun/extra/bunotel v1.2.1
+	github.com/uptrace/bun v1.2.2
+	github.com/uptrace/bun/dialect/mssqldialect v1.2.2
+	github.com/uptrace/bun/dialect/mysqldialect v1.2.2
+	github.com/uptrace/bun/dialect/pgdialect v1.2.2
+	github.com/uptrace/bun/extra/bunotel v1.2.2
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.54.0
 	go.opentelemetry.io/otel v1.29.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.29.0
@@ -34,7 +34,7 @@ require (
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.28.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240827150818-7e3bb234dfed
-	google.golang.org/grpc v1.65.0
+	google.golang.org/grpc v1.66.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -46,6 +46,8 @@ require (
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
+	github.com/onsi/gomega v1.34.2 // indirect
+	github.com/puzpuzpuz/xsync/v3 v3.4.0 // indirect
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.1 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
