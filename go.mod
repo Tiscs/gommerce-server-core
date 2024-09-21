@@ -9,8 +9,8 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0
 	github.com/nats-io/nats.go v1.37.0
-	github.com/redis/rueidis v1.0.45
-	github.com/redis/rueidis/rueidisotel v1.0.45
+	github.com/redis/rueidis v1.0.46
+	github.com/redis/rueidis/rueidisotel v1.0.46
 	github.com/rs/cors v1.11.1
 	github.com/shopspring/decimal v1.4.0
 	github.com/uptrace/bun v1.2.3
@@ -34,7 +34,7 @@ require (
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.29.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1
-	google.golang.org/grpc v1.66.2
+	google.golang.org/grpc v1.67.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
