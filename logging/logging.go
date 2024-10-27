@@ -2,9 +2,22 @@ package logging
 
 import (
 	"log/slog"
+	"sync/atomic"
 
 	"github.com/choral-io/gommerce-server-core/config"
 )
+
+type loggerWrapper struct {
+	Logger
+}
+
+var (
+	defaultLogger atomic.Value
+)
+
+func init() {
+	defaultLogger.Store(loggerWrapper{Logger: &SlogLogger{logger: slog.Default()}})
+}
 
 // NewLogger creates a new Logger instance with the given config.
 func NewLogger(cfg config.LoggingConfig) (l Logger, err error) {
@@ -24,4 +37,12 @@ func NewLogger(cfg config.LoggingConfig) (l Logger, err error) {
 		l = &SlogLogger{logger: slog.Default()}
 	}
 	return
+}
+
+func SetDefaultLogger(l Logger) {
+	defaultLogger.Store(loggerWrapper{Logger: l})
+}
+
+func DefaultLogger() Logger {
+	return defaultLogger.Load().(loggerWrapper).Logger
 }
