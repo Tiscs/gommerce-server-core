@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/choral-io/gommerce-server-core/config"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	stdout "go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/metric"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
+
+	"github.com/choral-io/gommerce-server-core/config"
 )
 
 // NewMeterProvider creates a new MeterProvider instance with the given config.

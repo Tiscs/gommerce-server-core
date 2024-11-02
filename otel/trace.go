@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/choral-io/gommerce-server-core/config"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	stdout "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
@@ -13,6 +12,8 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/choral-io/gommerce-server-core/config"
 )
 
 // NewTracerProvider creates a new TracerProvider instance with the given config.

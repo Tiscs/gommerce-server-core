@@ -7,9 +7,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/choral-io/gommerce-server-core/config"
-	"github.com/choral-io/gommerce-server-core/logging"
 	_ "github.com/shopspring/decimal"
+
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/mssqldialect"
 	"github.com/uptrace/bun/dialect/mysqldialect"
@@ -18,6 +17,9 @@ import (
 	"github.com/uptrace/bun/schema"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/choral-io/gommerce-server-core/config"
+	"github.com/choral-io/gommerce-server-core/logging"
 )
 
 // WithPaging is a bun.SelectQuery modifier that adds paging to the query.

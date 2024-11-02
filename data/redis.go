@@ -3,11 +3,12 @@ package data
 import (
 	"strings"
 
-	"github.com/choral-io/gommerce-server-core/config"
 	"github.com/redis/rueidis"
 	"github.com/redis/rueidis/rueidisotel"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/choral-io/gommerce-server-core/config"
 )
 
 // NewRedisClient creates a new redis client with tracing and metrics.

@@ -7,10 +7,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/choral-io/gommerce-server-core/config"
-	"github.com/choral-io/gommerce-server-core/logging"
-	"github.com/choral-io/gommerce-server-core/secure"
-	"github.com/choral-io/gommerce-server-core/validator"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/selector"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -23,8 +19,13 @@ import (
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	health "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
+
+	"github.com/choral-io/gommerce-server-core/config"
+	"github.com/choral-io/gommerce-server-core/logging"
+	"github.com/choral-io/gommerce-server-core/secure"
+	"github.com/choral-io/gommerce-server-core/validator"
 )
 
 // ServerServiceRegister is implemented by servers that register grpc services.
@@ -95,7 +96,7 @@ func NewGRPCHandler(cfg config.ServerHTTPConfig, opts ...GRPCHandlerOption) (*GR
 	)
 
 	if h.useHealthz {
-		h.gtwOptions = append(h.gtwOptions, runtime.WithHealthzEndpoint(health.NewHealthClient(conn)))
+		h.gtwOptions = append(h.gtwOptions, runtime.WithHealthzEndpoint(grpc_health_v1.NewHealthClient(conn)))
 	}
 
 	grpcServer := grpc.NewServer(h.srvOptions...)
@@ -263,7 +264,7 @@ func WithSecureInterceptor(auth *secure.ServerAuthorizer, matcher selector.Match
 func WithRegistrations(regs ...any) GRPCHandlerOption {
 	return func(h *GRPCHandler) error {
 		for _, reg := range regs {
-			if _, ok := reg.(health.HealthServer); ok {
+			if _, ok := reg.(grpc_health_v1.HealthServer); ok {
 				h.useHealthz = true
 			}
 			registered := false

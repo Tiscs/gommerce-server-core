@@ -39,10 +39,13 @@ func NewLogger(cfg config.LoggingConfig) (l Logger, err error) {
 	return
 }
 
+// SetDefaultLogger sets the default logger.
 func SetDefaultLogger(l Logger) {
 	defaultLogger.Store(loggerWrapper{Logger: l})
 }
 
+// DefaultLogger returns the default logger.
+// If no logger has been set, it returns the default slog logger.
 func DefaultLogger() Logger {
 	return defaultLogger.Load().(loggerWrapper).Logger
 }

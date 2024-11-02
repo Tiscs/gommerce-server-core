@@ -9,18 +9,18 @@ import (
 	"github.com/redis/rueidis"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc"
-	health "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 type healthServiceServer struct {
-	health.UnimplementedHealthServer
+	grpc_health_v1.UnimplementedHealthServer
 
 	sdb *sql.DB
 	rdb rueidis.Client
 }
 
 // NewHealthServiceServer returns a new health service server.
-func NewHealthServiceServer(bdb bun.IDB, rdb rueidis.Client) health.HealthServer {
+func NewHealthServiceServer(bdb bun.IDB, rdb rueidis.Client) grpc_health_v1.HealthServer {
 	// this is a hack to get the underlying sql.DB from bun.IDB
 	sdb := bdb.NewSelect().DB().DB
 	return &healthServiceServer{
@@ -31,10 +31,10 @@ func NewHealthServiceServer(bdb bun.IDB, rdb rueidis.Client) health.HealthServer
 
 // RegisterServerService implements ServerServiceRegister.
 func (s *healthServiceServer) RegisterServerService(reg grpc.ServiceRegistrar) {
-	reg.RegisterService(&health.Health_ServiceDesc, s)
+	reg.RegisterService(&grpc_health_v1.Health_ServiceDesc, s)
 }
 
-func (s *healthServiceServer) check(ctx context.Context, _ *health.HealthCheckRequest) error {
+func (s *healthServiceServer) check(ctx context.Context, _ *grpc_health_v1.HealthCheckRequest) error {
 	if s.sdb != nil {
 		if err := s.sdb.PingContext(ctx); err != nil {
 			slog.WarnContext(ctx, "db ping error", "error", err)
@@ -52,20 +52,20 @@ func (s *healthServiceServer) check(ctx context.Context, _ *health.HealthCheckRe
 
 // Check implements health.HealthServer.
 // It checks the health of the server, and returns NOT_SERVING if the server is not healthy.
-func (s *healthServiceServer) Check(ctx context.Context, req *health.HealthCheckRequest) (*health.HealthCheckResponse, error) {
-	status := health.HealthCheckResponse_NOT_SERVING
+func (s *healthServiceServer) Check(ctx context.Context, req *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error) {
+	status := grpc_health_v1.HealthCheckResponse_NOT_SERVING
 	if s.check(ctx, req) == nil {
-		status = health.HealthCheckResponse_SERVING
+		status = grpc_health_v1.HealthCheckResponse_SERVING
 	}
-	return &health.HealthCheckResponse{Status: status}, nil
+	return &grpc_health_v1.HealthCheckResponse{Status: status}, nil
 }
 
-func (s *healthServiceServer) reply(req *health.HealthCheckRequest, srv health.Health_WatchServer) error {
-	status := health.HealthCheckResponse_NOT_SERVING
+func (s *healthServiceServer) reply(req *grpc_health_v1.HealthCheckRequest, srv grpc_health_v1.Health_WatchServer) error {
+	status := grpc_health_v1.HealthCheckResponse_NOT_SERVING
 	if s.check(srv.Context(), req) == nil {
-		status = health.HealthCheckResponse_SERVING
+		status = grpc_health_v1.HealthCheckResponse_SERVING
 	}
-	if err := srv.Send(&health.HealthCheckResponse{Status: status}); err != nil {
+	if err := srv.Send(&grpc_health_v1.HealthCheckResponse{Status: status}); err != nil {
 		slog.WarnContext(srv.Context(), "failed to send health check response", "error", err)
 		return err
 	}
@@ -75,7 +75,7 @@ func (s *healthServiceServer) reply(req *health.HealthCheckRequest, srv health.H
 // Watch implements health.HealthServer.
 // It checks the health of the server, and returns NOT_SERVING if the server is not healthy.
 // It also sends a health check response every 30 seconds.
-func (s *healthServiceServer) Watch(req *health.HealthCheckRequest, srv health.Health_WatchServer) error {
+func (s *healthServiceServer) Watch(req *grpc_health_v1.HealthCheckRequest, srv grpc_health_v1.Health_WatchServer) error {
 	if err := s.reply(req, srv); err != nil {
 		return err
 	}

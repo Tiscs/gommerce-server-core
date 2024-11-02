@@ -1,8 +1,9 @@
 package events
 
 import (
-	"github.com/choral-io/gommerce-server-core/config"
 	"github.com/nats-io/nats.go"
+
+	"github.com/choral-io/gommerce-server-core/config"
 )
 
 func NewNATSConn(cfg config.ServerNATSConfig) (*nats.Conn, error) {

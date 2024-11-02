@@ -4,9 +4,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/choral-io/gommerce-server-core/config"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/redis/rueidis"
+
+	"github.com/choral-io/gommerce-server-core/config"
 )
 
 const (
