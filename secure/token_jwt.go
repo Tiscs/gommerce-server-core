@@ -1,6 +1,7 @@
 package secure
 
 import (
+	"context"
 	"crypto/rsa"
 	"errors"
 	"strings"
@@ -103,7 +104,7 @@ func (s *JsonWebTokenStore) parse(value string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func (s *JsonWebTokenStore) Issue(token *Token, ttl time.Duration) (string, error) {
+func (s *JsonWebTokenStore) Issue(_ context.Context, token *Token, ttl time.Duration) (string, error) {
 	token.id = uuid.New().String()            // generate a new UUID for the token id
 	token.issuedAt = time.Now().UTC()         // set the token create time
 	token.expiresAt = token.issuedAt.Add(ttl) // set the token expiry time
@@ -126,7 +127,7 @@ func (s *JsonWebTokenStore) Issue(token *Token, ttl time.Duration) (string, erro
 	return jwt.NewWithClaims(s.signingMethod, claims).SignedString(s.signingKey)
 }
 
-func (s *JsonWebTokenStore) Renew(value string, ttl time.Duration) (string, error) {
+func (s *JsonWebTokenStore) Renew(ctx context.Context, value string, ttl time.Duration) (string, error) {
 	// parse the token and verify the signature
 	token, err := s.parse(value)
 	if err != nil {
@@ -138,10 +139,10 @@ func (s *JsonWebTokenStore) Renew(value string, ttl time.Duration) (string, erro
 	if !strings.EqualFold(claims.Type, TokenTypeRefresh) {
 		return "", ErrInvalidTokenType
 	}
-	return s.Issue(NewToken(TokenTypeBearer, claims.Realm, claims.Client, claims.Subject, strings.Split(claims.Scope, " ")), ttl)
+	return s.Issue(ctx, NewToken(TokenTypeBearer, claims.Realm, claims.Client, claims.Subject, strings.Split(claims.Scope, " ")), ttl)
 }
 
-func (s *JsonWebTokenStore) Verify(value string) (*Token, error) {
+func (s *JsonWebTokenStore) Verify(_ context.Context, value string) (*Token, error) {
 	// parse the token and verify the signature
 	token, err := s.parse(value)
 	if err != nil {
@@ -164,7 +165,7 @@ func (s *JsonWebTokenStore) Verify(value string) (*Token, error) {
 	}, nil
 }
 
-func (s *JsonWebTokenStore) Revoke(_ string) (*Token, error) {
+func (s *JsonWebTokenStore) Revoke(_ context.Context, _ string) (*Token, error) {
 	// Revoke is not supported for the JSON Web Token (JWT) token store.
 	return nil, ErrUnsupportedOperation
 }

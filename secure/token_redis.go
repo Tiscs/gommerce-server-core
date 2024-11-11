@@ -25,7 +25,6 @@ var (
 
 // RedisTokenStore is a token store that uses Redis to store tokens.
 type RedisTokenStore struct {
-	ctx context.Context
 	rdb rueidis.Client
 	bkt string
 }
@@ -47,13 +46,12 @@ type RedisTokenConfig interface {
 // NewRedisTokenStore creates a new Redis token store.
 func NewRedisTokenStore(rdb rueidis.Client, bkt string) (*RedisTokenStore, error) {
 	return &RedisTokenStore{
-		ctx: context.Background(),
 		rdb: rdb,
 		bkt: bkt,
 	}, nil
 }
 
-func (s *RedisTokenStore) issue(token *Token, ttl time.Duration) (string, error) {
+func (s *RedisTokenStore) issue(ctx context.Context, token *Token, ttl time.Duration) (string, error) {
 	token.issuedAt = time.Now().UTC()
 	token.expiresAt = token.issuedAt.Add(ttl)
 	td, err := json.Marshal(token)
@@ -63,7 +61,7 @@ func (s *RedisTokenStore) issue(token *Token, ttl time.Duration) (string, error)
 	key := fmt.Sprintf("%s:%s", s.bkt, token.id)
 	var rr rueidis.RedisResult
 	if token.ttype == TokenTypeBearer {
-		rr = luaIssue.Exec(s.ctx, s.rdb, []string{
+		rr = luaIssue.Exec(ctx, s.rdb, []string{
 			key, // KEY[1]: token key
 		}, []string{
 			fmt.Sprintf("%s:%s:*", s.bkt, token.subject), // ARGV[1]: search pattern
@@ -79,7 +77,7 @@ func (s *RedisTokenStore) issue(token *Token, ttl time.Duration) (string, error)
 	return token.id, nil
 }
 
-func (s *RedisTokenStore) verify(value string, del bool) (*Token, error) {
+func (s *RedisTokenStore) verify(ctx context.Context, value string, del bool) (*Token, error) {
 	var td string
 	var err error
 	var cmd rueidis.Completed
@@ -88,7 +86,7 @@ func (s *RedisTokenStore) verify(value string, del bool) (*Token, error) {
 	} else {
 		cmd = s.rdb.B().Get().Key(fmt.Sprintf("%s:%s", s.bkt, value)).Build()
 	}
-	td, err = s.rdb.Do(s.ctx, cmd).ToString()
+	td, err = s.rdb.Do(ctx, cmd).ToString()
 	if td == "" || errors.Is(err, rueidis.Nil) {
 		return nil, ErrInvalidToken
 	} else if err != nil {
@@ -102,30 +100,30 @@ func (s *RedisTokenStore) verify(value string, del bool) (*Token, error) {
 	return token, nil
 }
 
-func (s *RedisTokenStore) Issue(token *Token, ttl time.Duration) (string, error) {
+func (s *RedisTokenStore) Issue(ctx context.Context, token *Token, ttl time.Duration) (string, error) {
 	token.id = fmt.Sprintf("%s:%s:%s", token.client, token.subject, uuid.NewString())
-	return s.issue(token, ttl)
+	return s.issue(ctx, token, ttl)
 }
 
-func (s *RedisTokenStore) Renew(value string, ttl time.Duration) (string, error) {
-	token, err := s.verify(value, false)
+func (s *RedisTokenStore) Renew(ctx context.Context, value string, ttl time.Duration) (string, error) {
+	token, err := s.verify(ctx, value, false)
 	if err != nil {
 		return "", err
 	}
-	return s.issue(token, ttl)
+	return s.issue(ctx, token, ttl)
 }
 
-func (s *RedisTokenStore) Verify(value string) (*Token, error) {
-	token, err := s.verify(value, false)
+func (s *RedisTokenStore) Verify(ctx context.Context, value string) (*Token, error) {
+	token, err := s.verify(ctx, value, false)
 	if err != nil {
 		return nil, err
 	}
-	if _, err := s.issue(token, token.expiresAt.Sub(token.issuedAt)); err != nil {
+	if _, err := s.issue(ctx, token, token.expiresAt.Sub(token.issuedAt)); err != nil {
 		return nil, err
 	}
 	return token, nil
 }
 
-func (s *RedisTokenStore) Revoke(value string) (*Token, error) {
-	return s.verify(value, true)
+func (s *RedisTokenStore) Revoke(ctx context.Context, value string) (*Token, error) {
+	return s.verify(ctx, value, true)
 }

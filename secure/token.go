@@ -1,6 +1,7 @@
 package secure
 
 import (
+	"context"
 	"strings"
 	"sync"
 	"time"
@@ -79,13 +80,13 @@ func (t *Token) IsExpired() bool {
 // TokenStore used to manage tokens.
 type TokenStore interface {
 	// Issue issues a new token with the given ttl.
-	Issue(token *Token, ttl time.Duration) (string, error)
+	Issue(ctx context.Context, token *Token, ttl time.Duration) (string, error)
 	// Renew renews the token and returns the new one.
-	Renew(value string, ttl time.Duration) (string, error)
+	Renew(ctx context.Context, value string, ttl time.Duration) (string, error)
 	// Verify verifies the token and returns the token if valid.
-	Verify(value string) (*Token, error)
+	Verify(ctx context.Context, value string) (*Token, error)
 	// Revoke revokes the token and returns the token if revoked.
-	Revoke(value string) (*Token, error)
+	Revoke(ctx context.Context, value string) (*Token, error)
 }
 
 // InMemoryTokenStore is an in-memory token store.
@@ -95,7 +96,7 @@ type InMemoryTokenStore struct {
 
 var _ TokenStore = (*InMemoryTokenStore)(nil)
 
-func (s *InMemoryTokenStore) Issue(token *Token, ttl time.Duration) (string, error) {
+func (s *InMemoryTokenStore) Issue(_ context.Context, token *Token, ttl time.Duration) (string, error) {
 	token.id = uuid.NewString()
 	token.issuedAt = time.Now().UTC()
 	token.expiresAt = token.issuedAt.Add(ttl)
@@ -103,7 +104,7 @@ func (s *InMemoryTokenStore) Issue(token *Token, ttl time.Duration) (string, err
 	return token.id, nil
 }
 
-func (s *InMemoryTokenStore) Renew(value string, ttl time.Duration) (string, error) {
+func (s *InMemoryTokenStore) Renew(_ context.Context, value string, ttl time.Duration) (string, error) {
 	if value, exists := s.tokens.Load(value); exists {
 		token := value.(*Token)
 		token.issuedAt = time.Now().UTC()
@@ -113,7 +114,7 @@ func (s *InMemoryTokenStore) Renew(value string, ttl time.Duration) (string, err
 	return "", ErrInvalidToken
 }
 
-func (s *InMemoryTokenStore) Verify(value string) (*Token, error) {
+func (s *InMemoryTokenStore) Verify(_ context.Context, value string) (*Token, error) {
 	if value, exists := s.tokens.Load(value); exists {
 		token := value.(*Token)
 		if token.IsExpired() {
@@ -125,7 +126,7 @@ func (s *InMemoryTokenStore) Verify(value string) (*Token, error) {
 	return nil, ErrInvalidToken
 }
 
-func (s *InMemoryTokenStore) Revoke(value string) (*Token, error) {
+func (s *InMemoryTokenStore) Revoke(_ context.Context, value string) (*Token, error) {
 	if value, exists := s.tokens.LoadAndDelete(value); exists {
 		token := value.(*Token)
 		return token, nil

@@ -34,11 +34,12 @@ func NewServerAuthorizer(stores map[string]TokenStore) *ServerAuthorizer {
 }
 
 // resolveIdentity resolves the identity from the given authorization header value.
-func (auth *ServerAuthorizer) resolveIdentity(ahv string) (*Identity, error) {
+func (auth *ServerAuthorizer) resolveIdentity(ctx context.Context) (*Identity, error) {
+	ahv := metadata.ExtractIncoming(ctx).Get(AuthHeaderKey)
 	if splits := strings.SplitN(ahv, " ", 2); len(splits) == 2 {
 		schema := strings.ToLower(splits[0])
 		if store, ok := auth.stores[schema]; ok {
-			if t, err := store.Verify(splits[1]); err == nil {
+			if t, err := store.Verify(ctx, splits[1]); err == nil {
 				return &Identity{schema: schema, token: t}, nil
 			} else if errors.Is(err, jwt.ErrTokenExpired) {
 				return nil, ErrExpiredToken
@@ -53,7 +54,7 @@ func (auth *ServerAuthorizer) resolveIdentity(ahv string) (*Identity, error) {
 // UnaryServerInterceptor returns a grpc.UnaryServerInterceptor that authorizes the identity in the context.
 func (auth *ServerAuthorizer) UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-		if user, err := auth.resolveIdentity(metadata.ExtractIncoming(ctx).Get(AuthHeaderKey)); err != nil {
+		if user, err := auth.resolveIdentity(ctx); err != nil {
 			return nil, err
 		} else if user != nil {
 			ctx = context.WithValue(ctx, identityKey{}, user)
@@ -70,7 +71,7 @@ func (auth *ServerAuthorizer) UnaryServerInterceptor() grpc.UnaryServerIntercept
 // StreamServerInterceptor returns a grpc.StreamServerInterceptor that authorizes the identity in the context.
 func (auth *ServerAuthorizer) StreamServerInterceptor() grpc.StreamServerInterceptor {
 	return func(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-		if user, err := auth.resolveIdentity(metadata.ExtractIncoming(ss.Context()).Get(AuthHeaderKey)); err != nil {
+		if user, err := auth.resolveIdentity(ss.Context()); err != nil {
 			return err
 		} else if user != nil {
 			ss = &middleware.WrappedServerStream{ServerStream: ss, WrappedContext: context.WithValue(ss.Context(), identityKey{}, user)}
