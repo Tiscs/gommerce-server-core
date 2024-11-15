@@ -33,7 +33,7 @@ func NewServerAuthorizer(stores map[string]TokenStore) *ServerAuthorizer {
 	return auth
 }
 
-// resolveIdentity resolves the identity from the given authorization header value.
+// resolveIdentity resolves the identity from the context.
 func (auth *ServerAuthorizer) resolveIdentity(ctx context.Context) (*Identity, error) {
 	ahv := metadata.ExtractIncoming(ctx).Get(AuthHeaderKey)
 	if splits := strings.SplitN(ahv, " ", 2); len(splits) == 2 {
