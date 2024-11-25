@@ -1,6 +1,7 @@
 module github.com/choral-io/gommerce-server-core
 
 go 1.22.7
+toolchain go1.23.3
 
 require (
 	github.com/expr-lang/expr v1.16.9
@@ -13,8 +14,8 @@ require (
 	github.com/redis/rueidis/rueidisotel v1.0.49
 	github.com/rs/cors v1.11.1
 	github.com/shopspring/decimal v1.4.0
-	github.com/uptrace/bun v1.2.5
-	github.com/uptrace/bun/dialect/mssqldialect v1.2.5
+	github.com/uptrace/bun v1.2.6
+	github.com/uptrace/bun/dialect/mssqldialect v1.2.6
 	github.com/uptrace/bun/dialect/mysqldialect v1.2.5
 	github.com/uptrace/bun/dialect/pgdialect v1.2.5
 	github.com/uptrace/bun/extra/bunotel v1.2.5
