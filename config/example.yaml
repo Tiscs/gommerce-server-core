@@ -42,7 +42,7 @@ snowflake:
   id-epoch: 1704067200000 # Defaults to: 2024-01-01T00:00:00Z
   cluster-id: 0
   worker-id: 0
-  worker-seq-key: gommerce-server-core-id-worker-seq
+  worker-seq-key: gommerce-server-core:id-worker-seq
   cluster-id-bits: 5
   worker-id-bits: 5
   sequence-bits: 12
@@ -66,7 +66,7 @@ metric:
 secure:
   token:
     store: jwt # jwt, redis, memory
-    bucket: gommerce:tokens
+    bucket: gommerce-server-core:token-store
     access-token-ttl: 48h # 2 days
     refresh-token-ttl: 168h # 7 days
     issuer: gommerce-server-core
