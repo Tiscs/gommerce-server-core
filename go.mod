@@ -34,7 +34,7 @@ require (
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.32.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241216192217-9240e9c98484
-	google.golang.org/grpc v1.69.0
+	google.golang.org/grpc v1.69.2
 	gopkg.in/yaml.v3 v3.0.1
 )
 
