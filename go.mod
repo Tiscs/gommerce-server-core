@@ -13,11 +13,11 @@ require (
 	github.com/redis/rueidis/rueidisotel v1.0.52
 	github.com/rs/cors v1.11.1
 	github.com/shopspring/decimal v1.4.0
-	github.com/uptrace/bun v1.2.7-0.20241122111038-ae8bdd31cd22
-	github.com/uptrace/bun/dialect/mssqldialect v1.2.7-0.20241122111038-ae8bdd31cd22
-	github.com/uptrace/bun/dialect/mysqldialect v1.2.7-0.20241122111038-ae8bdd31cd22
-	github.com/uptrace/bun/dialect/pgdialect v1.2.7-0.20241122111038-ae8bdd31cd22
-	github.com/uptrace/bun/extra/bunotel v1.2.7-0.20241122111038-ae8bdd31cd22
+	github.com/uptrace/bun v1.2.7
+	github.com/uptrace/bun/dialect/mssqldialect v1.2.7
+	github.com/uptrace/bun/dialect/mysqldialect v1.2.7
+	github.com/uptrace/bun/dialect/pgdialect v1.2.7
+	github.com/uptrace/bun/extra/bunotel v1.2.7
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.58.0
 	go.opentelemetry.io/otel v1.33.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.33.0
