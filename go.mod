@@ -13,9 +13,9 @@ require (
 	github.com/redis/rueidis/rueidisotel v1.0.52
 	github.com/rs/cors v1.11.1
 	github.com/shopspring/decimal v1.4.0
-	github.com/uptrace/bun v1.2.7
+	github.com/uptrace/bun v1.2.8
 	github.com/uptrace/bun/dialect/mssqldialect v1.2.7
-	github.com/uptrace/bun/dialect/mysqldialect v1.2.7
+	github.com/uptrace/bun/dialect/mysqldialect v1.2.8
 	github.com/uptrace/bun/dialect/pgdialect v1.2.7
 	github.com/uptrace/bun/extra/bunotel v1.2.7
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.58.0
@@ -59,7 +59,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/mod v0.22.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20241230172942-26aa7a208def // indirect
 	google.golang.org/protobuf v1.36.1 // indirect
